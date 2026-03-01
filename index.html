@@ -1,22 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Lochlann's Time Traveler - Lightning Trail</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<title>Lochlann's Time Traveler - Mobile D‑Pad</title>
 <style>
-body { margin:0; overflow:hidden; background:#111; font-family:Arial; color:white; }
-canvas { display:block; margin:0 auto; background:#000; }
-.hud { position:absolute; top:15px; right:20px; font-size:18px; }
-.hud div { margin-bottom:6px; }
-.overlay {
-    position:absolute;
-    top:50%; left:50%;
-    transform:translate(-50%,-50%);
-    font-size:36px;
-    text-align:center;
-    display:none;
-}
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #111;
+    font-family: Arial, sans-serif;
+    color: #fff;
+    touch-action: none;
+  }
+  canvas {
+    display: block;
+    margin: 0 auto;
+    background: #000;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hud {
+    position: fixed;
+    top: 12px;
+    right: 14px;
+    font-size: 16px;
+    z-index: 10;
+    user-select: none;
+    pointer-events: none;
+    text-shadow: 0 2px 6px rgba(0,0,0,.6);
+  }
+  .hud div { margin-bottom: 6px; }
+  .overlay {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 34px;
+    text-align: center;
+    display: none;
+    z-index: 20;
+    padding: 14px 18px;
+    background: rgba(0,0,0,.55);
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 14px;
+  }
+  .overlay .small { font-size: 14px; opacity: .85; margin-top: 10px; }
+
+  #controls {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    padding: 14px;
+    gap: 14px;
+    z-index: 15;
+    pointer-events: none;
+  }
+  .dpad {
+    display: grid;
+    grid-template-columns: 64px 64px 64px;
+    grid-template-rows: 64px 64px 64px;
+    gap: 10px;
+    pointer-events: auto;
+    user-select: none;
+  }
+  .btn {
+    width: 64px;
+    height: 64px;
+    font-size: 26px;
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(0,0,0,.35);
+    color: #fff;
+    border-radius: 16px;
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    touch-action: none;
+  }
+  .btn:active { transform: scale(0.98); }
+  #actionBtn {
+    width: 112px;
+    height: 112px;
+    border-radius: 56px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: .5px;
+    pointer-events: auto;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -30,25 +101,56 @@ canvas { display:block; margin:0 auto; background:#000; }
 
 <div id="overlay" class="overlay"></div>
 
+<div id="controls">
+  <div class="dpad">
+    <button class="btn" data-key="ArrowUp" style="grid-column:2;grid-row:1;">▲</button>
+    <button class="btn" data-key="ArrowLeft" style="grid-column:1;grid-row:2;">◀</button>
+    <button class="btn" data-key="ArrowDown" style="grid-column:2;grid-row:3;">▼</button>
+    <button class="btn" data-key="ArrowRight" style="grid-column:3;grid-row:2;">▶</button>
+  </div>
+  <button id="actionBtn" class="btn">ACTION</button>
+</div>
+
 <audio id="music" src="spooky.mp3" loop></audio>
 
 <script>
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
-
 const WIDTH = 800;
 const HEIGHT = 600;
-canvas.width = WIDTH;
-canvas.height = HEIGHT;
+
+function resizeCanvas() {
+  const screenW = window.innerWidth;
+  const screenH = window.innerHeight;
+  const scale = Math.min(screenW / WIDTH, screenH / HEIGHT);
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.style.width = (WIDTH * scale) + "px";
+  canvas.style.height = (HEIGHT * scale) + "px";
+  canvas.width = Math.floor(WIDTH * scale * dpr);
+  canvas.height = Math.floor(HEIGHT * scale * dpr);
+
+  ctx.setTransform(scale * dpr, 0, 0, scale * dpr, 0, 0);
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas();
 
 const music = document.getElementById("music");
 music.volume = 0.3;
+let audioStarted = false;
+function tryStartAudio() {
+  if (audioStarted) return;
+  audioStarted = true;
+  music.play().catch(()=>{});
+}
+canvas.addEventListener("pointerdown", (e) => { e.preventDefault(); tryStartAudio(); }, { passive:false });
 
 let gameRunning = true;
 let bossMode = false;
 
 let baseObstacleSpeed = 5;
 let obstacleSpeedMultiplier = 1;
+let nextSpeedIncrease = 30;
 
 let player = { x:50, y:250, w:50, h:70, speed:5 };
 let obstacles = [];
@@ -57,19 +159,18 @@ let lightningTrail = [];
 
 let hammer = { active:false, x:-100, y:-100, size:50, speed:12, dir:1 };
 
-let boss = { 
-  active:false, 
-  x:600, 
-  y:200, 
-  w:180, 
-  h:180, 
-  health:200, 
+let boss = {
+  active:false,
+  x:600,
+  y:200,
+  w:180,
+  h:180,
+  health:200,
   speed:2.4
 };
 
 let lives = 3;
 let score = 0;
-let nextSpeedIncrease = 30;
 
 const livesEl = document.getElementById("lives");
 const scoreEl = document.getElementById("score");
@@ -77,17 +178,31 @@ const overlay = document.getElementById("overlay");
 
 let keys = {};
 document.addEventListener("keydown", e => {
-    keys[e.key] = true;
-    if (gameRunning) music.play().catch(()=>{});
+  keys[e.key] = true;
+  if (gameRunning) tryStartAudio();
 });
 document.addEventListener("keyup", e => keys[e.key] = false);
 
-function loadImg(src){
-    const img = new Image();
-    img.src = src;
-    return img;
-}
+function bindHoldButton(btn, keyName) {
+  const press = (e) => { e.preventDefault(); keys[keyName] = true; if (gameRunning) tryStartAudio(); };
+  const release = (e) => { e.preventDefault(); keys[keyName] = false; };
 
+  btn.addEventListener("pointerdown", press, { passive:false });
+  btn.addEventListener("pointerup", release, { passive:false });
+  btn.addEventListener("pointercancel", release, { passive:false });
+  btn.addEventListener("pointerleave", release, { passive:false });
+}
+document.querySelectorAll('button[data-key]').forEach(btn => bindHoldButton(btn, btn.dataset.key));
+bindHoldButton(document.getElementById("actionBtn"), " ");
+
+window.addEventListener("blur", () => { keys = {}; });
+document.addEventListener("visibilitychange", () => { if (document.hidden) keys = {}; });
+
+function loadImg(src){
+  const img = new Image();
+  img.src = src;
+  return img;
+}
 const playerImg = loadImg("time_traveler.png");
 const monsterImg = loadImg("monster1.png");
 const potImg = loadImg("pot.png");
@@ -95,206 +210,196 @@ const hammerImg = loadImg("thor_hammer.jpg");
 const bgImg = loadImg("background.jpg");
 
 function updateUI(){
-    livesEl.textContent = "Lives: " + lives;
-    scoreEl.textContent = "Score: " + score;
+  livesEl.textContent = "Lives: " + lives;
+  scoreEl.textContent = "Score: " + score;
 }
-
 function checkSpeedIncrease(){
-    while(score >= nextSpeedIncrease){
-        obstacleSpeedMultiplier *= 1.03;
-        nextSpeedIncrease += 30;
-    }
+  while(score >= nextSpeedIncrease){
+    obstacleSpeedMultiplier *= 1.03;
+    nextSpeedIncrease += 30;
+  }
+}
+function collision(a,b){
+  return a.x < b.x + b.w &&
+         a.x + a.w > b.x &&
+         a.y < b.y + b.h &&
+         a.y + a.h > b.y;
+}
+function endGame(text){
+  gameRunning = false;
+  music.pause();
+  music.currentTime = 0;
+  overlay.style.display = "block";
+  overlay.innerHTML = text + '<div class="small">Refresh to restart</div>';
+}
+function loseLife(){
+  lives--;
+  updateUI();
+  if(lives <= 0) endGame("GAME OVER");
+  else {
+    player.x = 50; player.y = 250;
+    obstacles = [];
+  }
 }
 
 function spawnObstacle(){
-    if(!gameRunning || bossMode) return;
-    obstacles.push({ x: WIDTH, y: Math.random()*(HEIGHT-50), w:50, h:50 });
+  if(!gameRunning || bossMode) return;
+  obstacles.push({ x: WIDTH, y: Math.random()*(HEIGHT-50), w:50, h:50 });
 }
-
 function spawnArtifact(){
-    artifacts.push({ x: Math.random()*(WIDTH-30), y: Math.random()*(HEIGHT-30), w:30, h:30 });
+  artifacts.push({ x: Math.random()*(WIDTH-30), y: Math.random()*(HEIGHT-30), w:30, h:30 });
 }
-
 function activateBoss(){
-    bossMode = true;
-    boss.active = true;
-    obstacles = [];
-    artifacts = [];
-    boss.health = 200;
-    boss.x = 650;
-    boss.y = 200;
+  bossMode = true;
+  boss.active = true;
+  obstacles = [];
+  artifacts = [];
+  boss.health = 200;
+  boss.x = 650;
+  boss.y = 200;
 }
 
-function loseLife(){
-    lives--;
-    updateUI();
-    if(lives<=0) endGame("GAME OVER");
-    else {
-        player.x=50; player.y=250;
-        obstacles=[];
-    }
-}
-
-function endGame(text){
-    gameRunning=false;
-    music.pause();
-    music.currentTime=0;
-    overlay.style.display="block";
-    overlay.textContent = text;
-}
-
-function collision(a,b){
-    return a.x < b.x + b.w &&
-           a.x + a.w > b.x &&
-           a.y < b.y + b.h &&
-           a.y + a.h > b.y;
-}
-
-// Lightning trail particle
 function addLightning(x,y){
-    lightningTrail.push({ x:x, y:y, life:15 });
+  lightningTrail.push({ x, y, life: 15 });
+}
+function drawLightning(p){
+  ctx.strokeStyle = "cyan";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(p.x, p.y - 18);
+  for(let i=0;i<5;i++){
+    const ox = (Math.random()-0.5) * 20;
+    const oy = i * 8;
+    ctx.lineTo(p.x + ox, p.y - 18 + oy);
+  }
+  ctx.stroke();
 }
 
 function update(){
+  if(!gameRunning) return;
 
-    if(!gameRunning) return;
+  let moving = false;
+  if(keys["ArrowUp"]){ player.y -= player.speed; moving = true; }
+  if(keys["ArrowDown"]){ player.y += player.speed; moving = true; }
+  if(keys["ArrowLeft"]){ player.x -= player.speed; moving = true; }
+  if(keys["ArrowRight"]){ player.x += player.speed; moving = true; }
 
-    let moving = false;
+  player.x = Math.max(0, Math.min(WIDTH - player.w, player.x));
+  player.y = Math.max(0, Math.min(HEIGHT - player.h, player.y));
 
-    if(keys["ArrowUp"]){ player.y-=player.speed; moving=true; }
-    if(keys["ArrowDown"]){ player.y+=player.speed; moving=true; }
-    if(keys["ArrowLeft"]){ player.x-=player.speed; moving=true; }
-    if(keys["ArrowRight"]){ player.x+=player.speed; moving=true; }
+  if(moving) addLightning(player.x + player.w/2, player.y + player.h/2);
 
-    if(moving){
-        addLightning(player.x + player.w/2, player.y + player.h/2);
+  for(let i = lightningTrail.length - 1; i >= 0; i--){
+    lightningTrail[i].life--;
+    if(lightningTrail[i].life <= 0) lightningTrail.splice(i,1);
+  }
+
+  for(let i = obstacles.length - 1; i >= 0; i--){
+    obstacles[i].x -= baseObstacleSpeed * obstacleSpeedMultiplier;
+    if(obstacles[i].x < -50){ obstacles.splice(i,1); continue; }
+    if(collision(player, obstacles[i])){ loseLife(); break; }
+  }
+
+  for(let i = artifacts.length - 1; i >= 0; i--){
+    if(collision(player, artifacts[i])){
+      artifacts.splice(i,1);
+      score += 10;
+      updateUI();
+      checkSpeedIncrease();
+
+      if(score >= 100 && !hammer.active){
+        hammer.active = true;
+        hammer.x = player.x;
+        hammer.y = player.y;
+        hammer.dir = 1;
+      }
+      if(score >= 300 && !bossMode) activateBoss();
+      spawnArtifact();
+    }
+  }
+
+  if(hammer.active){
+    hammer.x += hammer.speed * hammer.dir;
+    if(hammer.x > WIDTH) hammer.dir = -1;
+    if(hammer.x < player.x){ hammer.active = false; hammer.x = -100; }
+
+    const pad = 10;
+    const hammerBox = { x: hammer.x + pad, y: hammer.y + pad, w: hammer.size - pad*2, h: hammer.size - pad*2 };
+
+    for(let i = obstacles.length - 1; i >= 0; i--){
+      if(collision(hammerBox, obstacles[i])){
+        obstacles.splice(i,1);
+        score += 20;
+        updateUI();
+        checkSpeedIncrease();
+      }
     }
 
-    player.x=Math.max(0,Math.min(WIDTH-player.w,player.x));
-    player.y=Math.max(0,Math.min(HEIGHT-player.h,player.y));
-
-    // Update lightning life
-    for(let i=lightningTrail.length-1;i>=0;i--){
-        lightningTrail[i].life--;
-        if(lightningTrail[i].life<=0){
-            lightningTrail.splice(i,1);
-        }
+    if(boss.active && collision(hammerBox, boss)){
+      boss.health -= 10;
+      hammer.dir = -1;
+      if(boss.health <= 0) endGame("YOU WIN!");
     }
+  }
 
-    for(let i=obstacles.length-1;i>=0;i--){
-        obstacles[i].x -= baseObstacleSpeed * obstacleSpeedMultiplier;
-        if(obstacles[i].x<-50){
-            obstacles.splice(i,1);
-            continue;
-        }
-        if(collision(player,obstacles[i])){
-            loseLife();
-            break;
-        }
+  if(boss.active){
+    const dx = player.x - boss.x;
+    const dy = player.y - boss.y;
+    const dist = Math.hypot(dx, dy);
+    if(dist > 1){
+      boss.x += (dx / dist) * boss.speed;
+      boss.y += (dy / dist) * boss.speed;
     }
-
-    for(let i=artifacts.length-1;i>=0;i--){
-        if(collision(player,artifacts[i])){
-            artifacts.splice(i,1);
-            score+=10;
-            updateUI();
-            checkSpeedIncrease();
-
-            if(score>=100 && !hammer.active){
-                hammer.active=true;
-                hammer.x=player.x;
-                hammer.y=player.y;
-                hammer.dir=1;
-            }
-
-            if(score>=300 && !bossMode) activateBoss();
-
-            spawnArtifact();
-        }
-    }
-
-    if(hammer.active){
-        hammer.x+=hammer.speed*hammer.dir;
-        if(hammer.x>WIDTH) hammer.dir=-1;
-        if(hammer.x<player.x){
-            hammer.active=false;
-            hammer.x=-100;
-        }
-
-        const hammerBox = { x:hammer.x, y:hammer.y, w:hammer.size, h:hammer.size };
-
-        for(let i=obstacles.length-1;i>=0;i--){
-            if(collision(hammerBox, obstacles[i])){
-                obstacles.splice(i,1);
-                score+=20;
-                updateUI();
-                checkSpeedIncrease();
-            }
-        }
-
-        if(boss.active && collision(hammerBox, boss)){
-            boss.health-=10;
-            hammer.dir=-1;
-            if(boss.health<=0) endGame("YOU WIN!");
-        }
-    }
-
-    if(boss.active){
-        const dx = player.x - boss.x;
-        const dy = player.y - boss.y;
-        const dist = Math.hypot(dx,dy);
-
-        if(dist>1){
-            boss.x += (dx/dist)*boss.speed;
-            boss.y += (dy/dist)*boss.speed;
-        }
-
-        if(collision(player,boss)) loseLife();
-    }
-}
-
-function drawLightning(p){
-    ctx.strokeStyle = "cyan";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(p.x, p.y - 20);
-    for(let i=0;i<5;i++){
-        let offsetX = (Math.random()-0.5)*20;
-        let offsetY = i*8;
-        ctx.lineTo(p.x + offsetX, p.y - 20 + offsetY);
-    }
-    ctx.stroke();
+    if(collision(player, boss)) loseLife();
+  }
 }
 
 function draw(){
-    ctx.clearRect(0,0,WIDTH,HEIGHT);
+  ctx.clearRect(0,0,WIDTH,HEIGHT);
 
-    ctx.drawImage(bgImg,0,0,WIDTH,HEIGHT);
-    ctx.drawImage(playerImg,player.x,player.y,player.w,player.h);
+  if (bgImg.complete && bgImg.naturalWidth) ctx.drawImage(bgImg, 0, 0, WIDTH, HEIGHT);
+  else { ctx.fillStyle = "#0d0d12"; ctx.fillRect(0,0,WIDTH,HEIGHT); }
 
-    obstacles.forEach(o=>ctx.drawImage(monsterImg,o.x,o.y,o.w,o.h));
-    artifacts.forEach(a=>ctx.drawImage(potImg,a.x,a.y,a.w,a.h));
+  if (playerImg.complete && playerImg.naturalWidth) ctx.drawImage(playerImg, player.x, player.y, player.w, player.h);
+  else { ctx.fillStyle = "#33e6ff"; ctx.fillRect(player.x, player.y, player.w, player.h); }
 
-    lightningTrail.forEach(drawLightning);
+  obstacles.forEach(o => {
+    if (monsterImg.complete && monsterImg.naturalWidth) ctx.drawImage(monsterImg, o.x, o.y, o.w, o.h);
+    else { ctx.fillStyle = "#ff3b3b"; ctx.fillRect(o.x, o.y, o.w, o.h); }
+  });
 
-    if(hammer.active)
-        ctx.drawImage(hammerImg,hammer.x,hammer.y,hammer.size,hammer.size);
+  artifacts.forEach(a => {
+    if (potImg.complete && potImg.naturalWidth) ctx.drawImage(potImg, a.x, a.y, a.w, a.h);
+    else { ctx.fillStyle = "gold"; ctx.fillRect(a.x, a.y, a.w, a.h); }
+  });
 
-    if(boss.active){
-        ctx.drawImage(monsterImg,boss.x,boss.y,boss.w,boss.h);
-        ctx.fillStyle="red";
-        ctx.fillRect(250,20,(boss.health/200)*300,20);
-    }
+  lightningTrail.forEach(drawLightning);
+
+  if(hammer.active){
+    if (hammerImg.complete && hammerImg.naturalWidth) ctx.drawImage(hammerImg, hammer.x, hammer.y, hammer.size, hammer.size);
+    else { ctx.fillStyle = "silver"; ctx.fillRect(hammer.x, hammer.y, hammer.size, hammer.size); }
+  }
+
+  if(boss.active){
+    if (monsterImg.complete && monsterImg.naturalWidth) ctx.drawImage(monsterImg, boss.x, boss.y, boss.w, boss.h);
+    else { ctx.fillStyle = "#7c2cff"; ctx.fillRect(boss.x, boss.y, boss.w, boss.h); }
+
+    ctx.fillStyle = "rgba(0,0,0,.55)";
+    ctx.fillRect(250, 18, 300, 24);
+    ctx.fillStyle = "red";
+    ctx.fillRect(250, 20, (boss.health/200) * 300, 20);
+  }
 }
 
 function loop(){
-    update();
-    draw();
-    requestAnimationFrame(loop);
+  update();
+  draw();
+  requestAnimationFrame(loop);
 }
 
 spawnArtifact();
-setInterval(spawnObstacle,1500);
+setInterval(spawnObstacle, 1500);
+updateUI();
 loop();
 </script>
 </body>
