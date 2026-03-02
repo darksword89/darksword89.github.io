@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title> Time Traveler - Mobile D‑Pad</title>
+<title>Lochlann's Time Traveler - Mobile D‑Pad</title>
 <style>
   html, body {
     margin: 0;
@@ -88,9 +88,91 @@
     pointer-events: auto;
     user-select: none;
   }
+
+  /* Instructions modal */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 30;
+    padding: 16px;
+  }
+  .modal {
+    width: min(520px, 92vw);
+    background: rgba(0,0,0,0.85);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 16px;
+    padding: 16px 16px 14px 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+    user-select: none;
+  }
+  .modal h2 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    letter-spacing: .2px;
+  }
+  .modal p {
+    margin: 8px 0;
+    font-size: 14px;
+    line-height: 1.35;
+    opacity: .95;
+  }
+  .modal ul {
+    margin: 8px 0 10px 18px;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.35;
+  }
+  .modal li { margin: 6px 0; }
+  .modal .row {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 12px;
+  }
+  .modal .smallbtn {
+    border: 1px solid rgba(255,255,255,.22);
+    background: rgba(255,255,255,.08);
+    color: #fff;
+    border-radius: 12px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 700;
+    touch-action: none;
+  }
+  .modal .smallbtn:active { transform: scale(0.99); }
+  .modal .hint {
+    margin-top: 10px;
+    font-size: 12px;
+    opacity: .8;
+  }
+
 </style>
 </head>
 <body>
+
+<!-- Instructions Popup -->
+<div id="howToBackdrop" class="modal-backdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="howToTitle">
+    <h2 id="howToTitle">How to Play</h2>
+    <ul>
+      <li><b>Move:</b> Arrow keys (desktop) or the on-screen <b>D-Pad</b> (mobile).</li>
+      <li><b>Collect:</b> Pots to gain score.</li>
+      <li><b>Avoid:</b> Monsters (they cost lives).</li>
+      <li><b>Power-up:</b> At <b>100</b> score, Thor’s Hammer activates.</li>
+      <li><b>Boss:</b> At <b>300</b> score, the boss appears and chases you.</li>
+      <li><b>Difficulty:</b> Every <b>30</b> points, monster speed increases by <b>3%</b>.</li>
+    </ul>
+    <p class="hint">Tip: On phones, tap <b>Start</b> to enable audio.</p>
+    <div class="row">
+      <button id="howToStart" class="smallbtn">Start</button>
+    </div>
+  </div>
+</div>
+
 
 <canvas id="game"></canvas>
 
@@ -138,6 +220,36 @@ resizeCanvas();
 const music = document.getElementById("music");
 music.volume = 0.3;
 let audioStarted = false;
+
+let gamePaused = true; // paused until player presses Start on the instructions popup
+
+function hideHowTo() {
+  const el = document.getElementById("howToBackdrop");
+  if (el) el.style.display = "none";
+  gamePaused = false;
+  obstacles = [];
+  tryStartAudio();
+}
+
+// Start button
+const howToStartBtn = document.getElementById("howToStart");
+if (howToStartBtn) {
+  howToStartBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); hideHowTo(); }, { passive:false });
+  howToStartBtn.addEventListener("click", (e) => { e.preventDefault(); hideHowTo(); });
+}
+
+// Optional: press H to toggle instructions (desktop)
+document.addEventListener("keydown", (e) => {
+  if (e.key === "h" || e.key === "H") {
+    const el = document.getElementById("howToBackdrop");
+    if (!el) return;
+    const isHidden = el.style.display === "none";
+    el.style.display = isHidden ? "flex" : "none";
+    gamePaused = !isHidden;
+    if (!isHidden) keys = {}; // clear movement when pausing
+  }
+});
+
 function tryStartAudio() {
   if (audioStarted) return;
   audioStarted = true;
@@ -227,6 +339,7 @@ function collision(a,b){
 }
 function endGame(text){
   gameRunning = false;
+  gamePaused = true;
   music.pause();
   music.currentTime = 0;
   overlay.style.display = "block";
@@ -243,6 +356,7 @@ function loseLife(){
 }
 
 function spawnObstacle(){
+    if (gamePaused) return;
   if(!gameRunning || bossMode) return;
   obstacles.push({ x: WIDTH, y: Math.random()*(HEIGHT-50), w:50, h:50 });
 }
@@ -277,6 +391,8 @@ function drawLightning(p){
 
 function update(){
   if(!gameRunning) return;
+
+    if (gamePaused) return;
 
   let moving = false;
   if(keys["ArrowUp"]){ player.y -= player.speed; moving = true; }
