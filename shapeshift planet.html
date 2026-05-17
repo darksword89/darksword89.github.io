@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShapeShift Arena</title>
+
+<style>
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  overflow:hidden;
+  background:black;
+  color:white;
+}
+
+canvas{
+  display:block;
+}
+
+#ui{
+  position:absolute;
+  top:20px;
+  left:20px;
+  width:300px;
+  padding:16px;
+  border-radius:14px;
+  background:rgba(10,15,30,0.82);
+  border:1px solid rgba(255,255,255,0.08);
+  backdrop-filter:blur(10px);
+  z-index:10;
+}
+
+#message{
+  position:absolute;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:rgba(0,0,0,0.7);
+  padding:12px 24px;
+  border-radius:12px;
+  z-index:10;
+}
+
+#healthBar{
+  position:absolute;
+  top:20px;
+  right:20px;
+  width:240px;
+  height:28px;
+  background:#111827;
+  border-radius:12px;
+  overflow:hidden;
+  border:2px solid white;
+  z-index:20;
+}
+
+#healthFill{
+  width:100%;
+  height:100%;
+  background:#22c55e;
+}
+
+#statsChart{
+  position:absolute;
+  right:20px;
+  bottom:20px;
+  background:rgba(0,0,0,0.5);
+  border-radius:12px;
+  z-index:10;
+}
+
+#restartButton{
+  display:none;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+  padding:18px 34px;
+  border:none;
+  border-radius:14px;
+  background:#38bdf8;
+  color:white;
+  font-size:24px;
+  cursor:pointer;
+  z-index:20;
+}
+</style>
+</head>
+
+<body>
+
+<div id="ui">
+
+<h1>ShapeShift Arena</h1>
+
+<p>Move: WASD / Arrow Keys</p>
+<p>1 = Cone 🚧</p>
+<p>2 = ATM 🏧</p>
+<p>3 = Lamp 💡</p>
+<p>SPACE = Ability</p>
+<p>SHIFT = Teleport</p>
+<p>P = Pause</p>
+
+<br>
+
+<div id="formName">Traffic Cone 🚧</div>
+<div id="abilityText">Sprint Boost</div>
+
+</div>
+
+<div id="message">
+Survive the robots.
+</div>
+
+<div id="healthBar">
+<div id="healthFill"></div>
+</div>
+
+<canvas id="statsChart" width="260" height="120"></canvas>
+
+<button id="restartButton">
+AGAIN
+</button>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+
+const canvas =
+document.getElementById('gameCanvas');
+
+const ctx =
+canvas.getContext('2d');
+
+const statsChart =
+document.getElementById('statsChart');
+
+const statsCtx =
+statsChart.getContext('2d');
+
+function resizeCanvas(){
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+}
+
+resizeCanvas();
+
+window.addEventListener(
+'resize',
+resizeCanvas
+);
+
+const formName =
+document.getElementById('formName');
+
+const abilityText =
+document.getElementById('abilityText');
+
+const message =
+document.getElementById('message');
+
+const restartButton =
+document.getElementById('restartButton');
+
+const healthFill =
+document.getElementById('healthFill');
+
+const keys = {};
+const bullets = [];
+const particles = [];
+const enemies = [];
+const props = [];
+const killHistory = [];
+
+let gameOver = false;
+let paused = false;
+
+let robotsKilled = 0;
+let bossSpawned = false;
+let playerHealth = 100;
+let flashEffect = 0;
+let robotFreezeTimer = 0;
+
+const camera = {
+shake:0
+};
+
+const player = {
+
+x:300,
+y:300,
+
+velocityX:0,
+velocityY:0,
+
+speed:4,
+
+form:'cone'
+};
+
+for(let i=0;i<40;i++){
+
+props.push({
+
+x:Math.random()*window.innerWidth,
+y:Math.random()*window.innerHeight,
+
+vx:(Math.random()-0.5)*1.5,
+vy:(Math.random()-0.5)*1.5,
+
+type:[
+'cone',
+'lamp',
+'atm'
+][Math.floor(Math.random()*3)]
+});
+}
+
+function spawnEnemy(){
+
+enemies.push({
+
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+
+vx:(Math.random()*2+1)
+*(Math.random()>0.5?1:-1),
+
+vy:(Math.random()*2+1)
+*(Math.random()>0.5?1:-1),
+
+type:'robot',
+health:1
+});
+}
+
+for(let i=0;i<8;i++){
+spawnEnemy();
+}
+
+setInterval(()=>{
+
+if(paused || gameOver) return;
+
+for(let i=0;i<5;i++){
+spawnEnemy();
+}
+
+message.innerText =
+'5 new robots entered!';
+
+},10000);
+
+function setForm(form){
+
+player.form = form;
+
+if(form === 'cone'){
+
+player.speed = 4;
+
+formName.innerText =
+'Traffic Cone 🚧';
+
+abilityText.innerText =
+'Sprint Boost';
+}
+
+if(form === 'atm'){
+
+player.speed = 3;
+
+formName.innerText =
+'ATM 🏧';
+
+abilityText.innerText =
+'Cash Cannon';
+}
+
+if(form === 'lamp'){
+
+player.speed = 3;
+
+formName.innerText =
+'Lamp 💡';
+
+abilityText.innerText =
+'Freeze Flash';
+}
+}
+
+window.addEventListener(
+'keydown',
+(e)=>{
+
+keys[e.key.toLowerCase()] = true;
+
+if(e.key === '1'){
+setForm('cone');
+}
+
+if(e.key === '2'){
+setForm('atm');
+}
+
+if(e.key === '3'){
+setForm('lamp');
+}
+
+if(e.key.toLowerCase() === 'p'){
+
+paused = !paused;
+
+message.innerText =
+paused
+? '⏸ GAME PAUSED'
+: '▶ GAME RESUMED';
+}
+
+if(paused) return;
+
+if(e.key === 'Shift'){
+
+player.x =
+Math.random()*canvas.width;
+
+player.y =
+Math.random()*canvas.height;
+
+flashEffect = 20;
+
+message.innerText =
+'Teleported!';
+}
+
+if(e.code === 'Space'){
+
+if(player.form === 'cone'){
+
+player.speed = 12;
+
+message.innerText =
+'Sprint Activated!';
+}
+
+if(player.form === 'lamp'){
+
+flashEffect = 40;
+robotFreezeTimer = 300;
+
+message.innerText =
+'Robots Frozen!';
+}
+
+if(player.form === 'atm'){
+
+const angle =
+Math.random()*Math.PI*2;
+
+bullets.push({
+
+x:player.x+20,
+y:player.y+20,
+
+vx:Math.cos(angle)*12,
+vy:Math.sin(angle)*12,
+
+moneyType:[
+'💵',
+'💸',
+'💰'
+][Math.floor(Math.random()*3)]
+});
+
+message.innerText =
+'Cash launched!';
+}
+}
+});
+
+window.addEventListener(
+'keyup',
+(e)=>{
+
+keys[e.key.toLowerCase()] = false;
+
+if(
+e.code === 'Space' &&
+player.form === 'cone'
+){
+
+player.speed = 4;
+}
+});
+
+function movePlayer(){
+
+if(gameOver) return;
+
+let moveX = 0;
+let moveY = 0;
+
+if(keys['w'] || keys['arrowup']){
+moveY -= 1;
+}
+
+if(keys['s'] || keys['arrowdown']){
+moveY += 1;
+}
+
+if(keys['a'] || keys['arrowleft']){
+moveX -= 1;
+}
+
+if(keys['d'] || keys['arrowright']){
+moveX += 1;
+}
+
+player.velocityX +=
+moveX * (player.speed*0.12);
+
+player.velocityY +=
+moveY * (player.speed*0.12);
+
+player.velocityX *= 0.82;
+player.velocityY *= 0.82;
+
+player.x += player.velocityX;
+player.y += player.velocityY;
+
+player.x = Math.max(
+0,
+Math.min(canvas.width-50,player.x)
+);
+
+player.y = Math.max(
+0,
+Math.min(canvas.height-50,player.y)
+);
+}
+
+function updateEnemies(){
+
+if(robotFreezeTimer > 0){
+robotFreezeTimer--;
+}
+
+enemies.forEach((enemy)=>{
+
+if(enemy.type === 'boss'){
+
+const dx =
+player.x - enemy.x;
+
+const dy =
+player.y - enemy.y;
+
+const angle =
+Math.atan2(dy,dx);
+
+enemy.x +=
+Math.cos(angle)*1.3;
+
+enemy.y +=
+Math.sin(angle)*1.3;
+
+}else{
+
+if(!(robotFreezeTimer > 0)){
+
+enemy.x += enemy.vx;
+enemy.y += enemy.vy;
+}
+}
+
+if(
+enemy.x < 0 ||
+enemy.x > canvas.width
+){
+enemy.vx *= -1;
+}
+
+if(
+enemy.y < 0 ||
+enemy.y > canvas.height
+){
+enemy.vy *= -1;
+}
+
+const dx =
+player.x - enemy.x;
+
+const dy =
+player.y - enemy.y;
+
+const distance =
+Math.sqrt(dx*dx+dy*dy);
+
+if(distance < 35){
+
+playerHealth -=
+enemy.type === 'boss'
+? 1
+: 0.2;
+
+healthFill.style.width =
+playerHealth + '%';
+
+if(playerHealth <= 0){
+
+gameOver = true;
+
+restartButton.style.display =
+'block';
+
+message.innerText =
+'GAME OVER';
+}
+}
+});
+}
+
+function updateBullets(){
+
+bullets.forEach(
+(bullet,bulletIndex)=>{
+
+bullet.x += bullet.vx;
+bullet.y += bullet.vy;
+
+enemies.forEach(
+(enemy,enemyIndex)=>{
+
+const dx =
+bullet.x - enemy.x;
+
+const dy =
+bullet.y - enemy.y;
+
+const distance =
+Math.sqrt(dx*dx+dy*dy);
+
+if(distance < 25){
+
+bullets.splice(
+bulletIndex,
+1
+);
+
+if(enemy.type === 'boss'){
+
+enemy.health--;
+
+if(enemy.health <= 0){
+
+enemies.splice(
+enemyIndex,
+1
+);
+
+gameOver = true;
+
+message.innerText =
+'🏆 YOU WIN 🏆';
+
+flashEffect = 120;
+
+camera.shake = 30;
+
+for(let i=0;i<150;i++){
+
+particles.push({
+
+x:enemy.x,
+y:enemy.y,
+
+size:Math.random()*14+4,
+
+life:80,
+
+vx:(Math.random()-0.5)*20,
+vy:(Math.random()-0.5)*20
+});
+}
+}
+
+}else{
+
+enemies.splice(
+enemyIndex,
+1
+);
+
+robotsKilled++;
+
+if(
+robotsKilled >= 60 &&
+!bossSpawned
+){
+
+bossSpawned = true;
+
+enemies.push({
+
+x:canvas.width/2,
+y:120,
+
+vx:2,
+vy:2,
+
+type:'boss',
+health:40
+});
+
+flashEffect = 60;
+camera.shake = 20;
+
+message.innerText =
+'⚠️ GIANT BOSS ARRIVED ⚠️';
+}
+}
+
+for(let i=0;i<40;i++){
+
+particles.push({
+
+x:enemy.x,
+y:enemy.y,
+
+size:
+Math.random()*8+2,
+
+life:50,
+
+vx:
+(Math.random()-0.5)*12,
+
+vy:
+(Math.random()-0.5)*12
+});
+}
+
+camera.shake = 12;
+
+killHistory.push(
+robotsKilled
+);
+
+if(killHistory.length > 20){
+killHistory.shift();
+}
+}
+});
+});
+}
+
+function updateParticles(){
+
+particles.forEach(
+(particle,index)=>{
+
+particle.life--;
+
+particle.x += particle.vx;
+particle.y += particle.vy;
+
+if(particle.life <= 0){
+
+particles.splice(index,1);
+}
+});
+
+props.forEach((prop)=>{
+
+prop.x += prop.vx;
+prop.y += prop.vy;
+
+if(
+prop.x < 0 ||
+prop.x > canvas.width
+){
+prop.vx *= -1;
+}
+
+if(
+prop.y < 0 ||
+prop.y > canvas.height
+){
+prop.vy *= -1;
+}
+});
+}
+
+function drawBackground(){
+
+ctx.setTransform(1,0,0,1,0,0);
+
+if(camera.shake > 0){
+
+ctx.translate(
+(Math.random()-0.5)
+* camera.shake,
+
+(Math.random()-0.5)
+* camera.shake
+);
+
+camera.shake *= 0.9;
+}
+
+const gradient =
+ctx.createLinearGradient(
+0,
+0,
+0,
+canvas.height
+);
+
+gradient.addColorStop(
+0,
+'#0f172a'
+);
+
+gradient.addColorStop(
+1,
+'#1e293b'
+);
+
+ctx.fillStyle = gradient;
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+for(let i=0;i<25;i++){
+
+const x =
+(i*137 + Date.now()*0.01)
+% canvas.width;
+
+const y =
+(i*83)
+% canvas.height;
+
+const radius =
+80 +
+Math.sin(
+Date.now()*0.001+i
+)*20;
+
+const glow =
+ctx.createRadialGradient(
+x,
+y,
+0,
+x,
+y,
+radius
+);
+
+glow.addColorStop(
+0,
+'rgba(59,130,246,0.12)'
+);
+
+glow.addColorStop(
+1,
+'rgba(59,130,246,0)'
+);
+
+ctx.fillStyle = glow;
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y,
+radius,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+}
+
+ctx.strokeStyle =
+'rgba(255,255,255,0.04)';
+
+ctx.lineWidth = 1;
+
+for(let x=0;
+x<canvas.width;
+x+=60){
+
+ctx.beginPath();
+
+ctx.moveTo(x,0);
+
+ctx.lineTo(
+x,
+canvas.height
+);
+
+ctx.stroke();
+}
+
+for(let y=0;
+y<canvas.height;
+y+=60){
+
+ctx.beginPath();
+
+ctx.moveTo(0,y);
+
+ctx.lineTo(
+canvas.width,
+y
+);
+
+ctx.stroke();
+}
+}
+
+function drawProps(){
+
+ctx.font = '30px Arial';
+
+props.forEach((prop)=>{
+
+if(prop.type === 'cone'){
+ctx.fillText('🚧',prop.x,prop.y);
+}
+
+if(prop.type === 'lamp'){
+ctx.fillText('💡',prop.x,prop.y);
+}
+
+if(prop.type === 'atm'){
+ctx.fillText('🏧',prop.x,prop.y);
+}
+});
+}
+
+function drawEnemies(){
+
+enemies.forEach((enemy)=>{
+
+if(enemy.type === 'robot'){
+
+ctx.font = '40px Arial';
+
+ctx.fillText(
+'🤖',
+enemy.x,
+enemy.y
+);
+}
+
+if(enemy.type === 'boss'){
+
+ctx.font = '220px Arial';
+
+ctx.fillText(
+'👹',
+enemy.x-100,
+enemy.y+100
+);
+
+ctx.fillStyle = 'red';
+
+ctx.fillRect(
+enemy.x-150,
+enemy.y-150,
+300,
+20
+);
+
+ctx.fillStyle =
+'#22c55e';
+
+ctx.fillRect(
+enemy.x-150,
+enemy.y-150,
+(enemy.health/40)*300,
+20
+);
+}
+});
+}
+
+function drawBullets(){
+
+ctx.font = '28px Arial';
+
+bullets.forEach((bullet)=>{
+
+ctx.fillText(
+bullet.moneyType || '💵',
+bullet.x,
+bullet.y
+);
+});
+}
+
+function drawParticles(){
+
+particles.forEach((particle)=>{
+
+ctx.fillStyle =
+`rgba(255,140,0,${
+particle.life / 50
+})`;
+
+ctx.beginPath();
+
+ctx.arc(
+particle.x,
+particle.y,
+particle.size,
+0,
+Math.PI*2
+);
+
+ctx.fill();
+});
+}
+
+function drawPlayer(){
+
+ctx.font = '40px Arial';
+
+if(player.form === 'cone'){
+ctx.fillText(
+'🚧',
+player.x,
+player.y+35
+);
+}
+
+if(player.form === 'atm'){
+ctx.fillText(
+'🏧',
+player.x,
+player.y+35
+);
+}
+
+if(player.form === 'lamp'){
+ctx.fillText(
+'💡',
+player.x,
+player.y+35
+);
+}
+}
+
+function drawFlash(){
+
+if(flashEffect > 0){
+
+ctx.fillStyle =
+`rgba(255,255,255,${
+flashEffect / 40
+})`;
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+flashEffect--;
+}
+}
+
+function drawStatsChart(){
+
+statsCtx.clearRect(
+0,
+0,
+statsChart.width,
+statsChart.height
+);
+
+statsCtx.fillStyle = 'white';
+
+statsCtx.font =
+'14px Arial';
+
+statsCtx.fillText(
+'Robots Destroyed: '
++ robotsKilled,
+10,
+20
+);
+
+statsCtx.strokeStyle =
+'#38bdf8';
+
+statsCtx.lineWidth = 3;
+
+statsCtx.beginPath();
+
+killHistory.forEach(
+(value,index)=>{
+
+const x =
+10 + index*12;
+
+const y =
+100 - value*2;
+
+if(index === 0){
+
+statsCtx.moveTo(x,y);
+
+}else{
+
+statsCtx.lineTo(x,y);
+}
+});
+
+statsCtx.stroke();
+}
+
+restartButton.addEventListener(
+'click',
+()=>{
+
+location.reload();
+});
+
+function gameLoop(){
+
+drawBackground();
+
+if(!gameOver && !paused){
+
+movePlayer();
+
+updateEnemies();
+
+updateBullets();
+
+updateParticles();
+}
+
+drawProps();
+
+drawEnemies();
+
+drawBullets();
+
+drawParticles();
+
+drawPlayer();
+
+drawFlash();
+
+drawStatsChart();
+
+if(paused){
+
+ctx.fillStyle =
+'rgba(0,0,0,0.55)';
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+ctx.fillStyle = 'white';
+
+ctx.font =
+'80px Arial';
+
+ctx.textAlign =
+'center';
+
+ctx.fillText(
+'PAUSED',
+canvas.width/2,
+canvas.height/2
+);
+}
+
+if(gameOver){
+
+ctx.fillStyle =
+'rgba(0,0,0,0.45)';
+
+ctx.fillRect(
+0,
+0,
+canvas.width,
+canvas.height
+);
+
+ctx.fillStyle = 'gold';
+
+ctx.font =
+'90px Arial';
+
+ctx.textAlign =
+'center';
+
+ctx.fillText(
+message.innerText,
+canvas.width/2,
+canvas.height/2
+);
+}
+
+requestAnimationFrame(
+gameLoop
+);
+}
+
+setForm('cone');
+
+gameLoop();
+
+</script>
+
+</body>
+</html>
