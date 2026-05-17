@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Game Portal</title>
+
+<style>
+
+body{
+    margin:0;
+    overflow:hidden;
+    font-family:Arial,sans-serif;
+
+    background:
+    linear-gradient(
+        to bottom,
+        #0f172a,
+        #1e293b
+    );
+
+    color:white;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    height:100vh;
+}
+
+.backgroundGlow{
+
+    position:absolute;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+}
+
+.glow{
+
+    position:absolute;
+
+    border-radius:50%;
+
+    background:
+    rgba(59,130,246,0.15);
+
+    animation:float 10s infinite ease-in-out;
+}
+
+.glow:nth-child(1){
+
+    width:300px;
+    height:300px;
+
+    left:10%;
+    top:20%;
+}
+
+.glow:nth-child(2){
+
+    width:250px;
+    height:250px;
+
+    right:15%;
+    top:10%;
+}
+
+.glow:nth-child(3){
+
+    width:400px;
+    height:400px;
+
+    left:35%;
+    bottom:-100px;
+}
+
+@keyframes float{
+
+    0%{
+        transform:translateY(0px);
+    }
+
+    50%{
+        transform:translateY(-30px);
+    }
+
+    100%{
+        transform:translateY(0px);
+    }
+}
+
+.container{
+
+    position:relative;
+
+    z-index:10;
+
+    text-align:center;
+
+    padding:40px;
+
+    border-radius:24px;
+
+    background:
+    rgba(15,23,42,0.75);
+
+    border:
+    1px solid rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(10px);
+
+    box-shadow:
+    0 0 40px rgba(0,0,0,0.4);
+}
+
+h1{
+
+    font-size:56px;
+
+    margin-bottom:20px;
+
+    color:#93c5fd;
+}
+
+p{
+
+    font-size:20px;
+
+    margin-bottom:40px;
+
+    color:#cbd5e1;
+}
+
+.gameButton{
+
+    display:block;
+
+    width:320px;
+
+    margin:20px auto;
+
+    padding:22px;
+
+    font-size:28px;
+
+    text-decoration:none;
+
+    color:white;
+
+    border-radius:18px;
+
+    transition:
+    transform 0.2s,
+    background 0.3s;
+
+    box-shadow:
+    0 8px 20px rgba(0,0,0,0.3);
+}
+
+.gameButton:hover{
+
+    transform:scale(1.05);
+}
+
+.vortex{
+
+    background:
+    linear-gradient(
+        135deg,
+        #7c3aed,
+        #3b82f6
+    );
+}
+
+.vortex:hover{
+
+    background:
+    linear-gradient(
+        135deg,
+        #8b5cf6,
+        #60a5fa
+    );
+}
+
+.shape{
+
+    background:
+    linear-gradient(
+        135deg,
+        #16a34a,
+        #22c55e
+    );
+}
+
+.shape:hover{
+
+    background:
+    linear-gradient(
+        135deg,
+        #22c55e,
+        #4ade80
+    );
+}
+
+.footer{
+
+    margin-top:30px;
+
+    font-size:16px;
+
+    color:#94a3b8;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="backgroundGlow">
+
+<div class="glow"></div>
+<div class="glow"></div>
+<div class="glow"></div>
+
+</div>
+
+<div class="container">
+
+<h1>🎮 Game Portal</h1>
+
+<p>
+Choose a game to play
+</p>
+
+<a
+class="gameButton vortex"
+href="through_the_vortex.html"
+>
+🌀 Through the Vortex
+</a>
+
+<a
+class="gameButton shape"
+href="shapeshift_planet.html"
+>
+🌍 ShapeShift Planet
+</a>
+
+<div class="footer">
+Made by You 🚀
+</div>
+
+</div>
+
+</body>
+</html>
