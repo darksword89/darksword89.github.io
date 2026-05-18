@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Neon Space Snake</title>
+
+  <style>
+
+    body{
+      margin:0;
+      overflow:hidden;
+      background:black;
+      color:white;
+      text-align:center;
+      font-family:Arial;
+    }
+
+    h1{
+      margin-top:15px;
+      text-shadow:0 0 20px cyan;
+      position:relative;
+      z-index:2;
+    }
+
+    p{
+      position:relative;
+      z-index:2;
+      font-size:20px;
+    }
+
+    #bg{
+      position:fixed;
+      top:0;
+      left:0;
+      width:100%;
+      height:100%;
+      z-index:0;
+    }
+
+    #game{
+      position:relative;
+      z-index:1;
+      background:rgba(0,0,0,0.12);
+      border:3px solid white;
+      border-radius:20px;
+      box-shadow:0 0 40px cyan;
+    }
+
+  </style>
+</head>
+
+<body>
+
+<canvas id="bg"></canvas>
+
+<h1>🌈 Neon Space Snake 🐍</h1>
+
+<p>
+Score:
+<span id="score">0</span>
+</p>
+
+<canvas
+  id="game"
+  width="600"
+  height="600">
+</canvas>
+
+<script>
+
+// ====================
+// BACKGROUND
+// ====================
+
+const bgCanvas =
+  document.getElementById("bg");
+
+const bgCtx =
+  bgCanvas.getContext("2d");
+
+bgCanvas.width =
+  window.innerWidth;
+
+bgCanvas.height =
+  window.innerHeight;
+
+// STARS
+const stars = [];
+
+for(let i=0;i<250;i++){
+
+  stars.push({
+
+    x:
+      Math.random() *
+      bgCanvas.width,
+
+    y:
+      Math.random() *
+      bgCanvas.height,
+
+    size:
+      Math.random()*3,
+
+    speed:
+      Math.random()*0.5 + 0.2
+
+  });
+}
+
+// NEON CLOUDS
+const particles = [];
+
+for(let i=0;i<25;i++){
+
+  particles.push({
+
+    x:
+      Math.random() *
+      bgCanvas.width,
+
+    y:
+      Math.random() *
+      bgCanvas.height,
+
+    radius:
+      Math.random()*200 + 100,
+
+    dx:
+      (Math.random()-0.5)*0.3,
+
+    dy:
+      (Math.random()-0.5)*0.3,
+
+    color:
+      [
+        "rgba(0,255,0,0.15)",
+        "rgba(255,0,0,0.15)",
+        "rgba(180,0,255,0.15)"
+      ][Math.floor(Math.random()*3)]
+
+  });
+}
+
+function drawBackground(){
+
+  bgCtx.clearRect(
+    0,
+    0,
+    bgCanvas.width,
+    bgCanvas.height
+  );
+
+  const gradient =
+    bgCtx.createLinearGradient(
+      0,
+      0,
+      0,
+      bgCanvas.height
+    );
+
+  gradient.addColorStop(
+    0,
+    "#000000"
+  );
+
+  gradient.addColorStop(
+    1,
+    "#050010"
+  );
+
+  bgCtx.fillStyle =
+    gradient;
+
+  bgCtx.fillRect(
+    0,
+    0,
+    bgCanvas.width,
+    bgCanvas.height
+  );
+
+  // GLOW CLOUDS
+  particles.forEach(p=>{
+
+    bgCtx.beginPath();
+
+    bgCtx.fillStyle =
+      p.color;
+
+    bgCtx.shadowBlur = 100;
+
+    bgCtx.shadowColor =
+      p.color;
+
+    bgCtx.arc(
+      p.x,
+      p.y,
+      p.radius,
+      0,
+      Math.PI*2
+    );
+
+    bgCtx.fill();
+
+    p.x += p.dx;
+    p.y += p.dy;
+
+    if(
+      p.x < -200 ||
+      p.x > bgCanvas.width+200
+    ){
+      p.dx *= -1;
+    }
+
+    if(
+      p.y < -200 ||
+      p.y > bgCanvas.height+200
+    ){
+      p.dy *= -1;
+    }
+
+  });
+
+  // STARS
+  stars.forEach(star=>{
+
+    bgCtx.beginPath();
+
+    bgCtx.fillStyle =
+      "white";
+
+    bgCtx.shadowBlur = 10;
+
+    bgCtx.shadowColor =
+      "white";
+
+    bgCtx.arc(
+      star.x,
+      star.y,
+      star.size,
+      0,
+      Math.PI*2
+    );
+
+    bgCtx.fill();
+
+    star.y += star.speed;
+
+    if(
+      star.y >
+      bgCanvas.height
+    ){
+
+      star.y = 0;
+
+      star.x =
+        Math.random() *
+        bgCanvas.width;
+    }
+
+  });
+
+  requestAnimationFrame(
+    drawBackground
+  );
+}
+
+drawBackground();
+
+// ====================
+// GAME
+// ====================
+
+const canvas =
+  document.getElementById("game");
+
+const ctx =
+  canvas.getContext("2d");
+
+const grid = 20;
+
+const tileCount =
+  canvas.width / grid;
+
+// PLAYER
+let snake;
+let direction;
+let nextDirection;
+
+// GAME
+let food;
+let score;
+let moveTimer;
+let moveDelay;
+let gameOver;
+
+// GREEN SNAKES
+let greenSnakes;
+let greenMoveCounter = 0;
+
+// TRAIL PARTICLES
+let trailParticles = [];
+
+// START GAME
+function init(){
+
+  snake = [
+
+    {x:10,y:10},
+    {x:9,y:10},
+    {x:8,y:10}
+
+  ];
+
+  greenSnakes = [
+
+    [
+      {x:20,y:20},
+      {x:19,y:20},
+      {x:18,y:20}
+    ],
+
+    [
+      {x:5,y:25},
+      {x:4,y:25},
+      {x:3,y:25}
+    ]
+
+  ];
+
+  direction =
+    {x:1,y:0};
+
+  nextDirection =
+    {x:1,y:0};
+
+  food = randomFood();
+
+  score = 0;
+
+  moveDelay = 0.20;
+
+  moveTimer = 0;
+
+  gameOver = false;
+
+  trailParticles = [];
+
+  document
+    .getElementById("score")
+    .textContent = score;
+}
+
+// RANDOM FOOD
+function randomFood(){
+
+  return {
+
+    x:
+      Math.floor(
+        Math.random() *
+        tileCount
+      ),
+
+    y:
+      Math.floor(
+        Math.random() *
+        tileCount
+      )
+
+  };
+}
+
+// MOVE GREEN SNAKES
+function moveGreenSnake(greenSnake){
+
+  if(
+    greenMoveCounter % 1.5 > 0
+  ){
+    return;
+  }
+
+  const head =
+    greenSnake[0];
+
+  let dx = 0;
+  let dy = 0;
+
+  if(food.x > head.x)
+    dx = 1;
+
+  if(food.x < head.x)
+    dx = -1;
+
+  if(food.y > head.y)
+    dy = 1;
+
+  if(food.y < head.y)
+    dy = -1;
+
+  if(Math.random() < 0.5){
+
+    dy = 0;
+
+  } else {
+
+    dx = 0;
+  }
+
+  const newHead = {
+
+    x: head.x + dx,
+    y: head.y + dy
+
+  };
+
+  newHead.x =
+    Math.max(
+      0,
+      Math.min(
+        tileCount-1,
+        newHead.x
+      )
+    );
+
+  newHead.y =
+    Math.max(
+      0,
+      Math.min(
+        tileCount-1,
+        newHead.y
+      )
+    );
+
+  greenSnake.unshift(
+    newHead
+  );
+
+  if(
+    newHead.x === food.x &&
+    newHead.y === food.y
+  ){
+
+    food = randomFood();
+
+  } else {
+
+    greenSnake.pop();
+  }
+}
+
+// UPDATE
+function update(dt){
+
+  if(gameOver) return;
+
+  moveTimer += dt;
+
+  if(moveTimer >= moveDelay){
+
+    moveTimer = 0;
+
+    direction =
+      nextDirection;
+
+    const head = {
+
+      x:
+        snake[0].x +
+        direction.x,
+
+      y:
+        snake[0].y +
+        direction.y
+
+    };
+
+    // WALL COLLISION
+    if(
+      head.x < 0 ||
+      head.y < 0 ||
+      head.x >= tileCount ||
+      head.y >= tileCount
+    ){
+
+      gameOver = true;
+      return;
+    }
+
+    // SELF COLLISION
+    for(let part of snake){
+
+      if(
+        head.x === part.x &&
+        head.y === part.y
+      ){
+
+        gameOver = true;
+        return;
+      }
+    }
+
+    snake.unshift(head);
+
+    // FOOD
+    if(
+      head.x === food.x &&
+      head.y === food.y
+    ){
+
+      score++;
+
+      moveDelay =
+        Math.min(
+          0.35,
+          moveDelay + 0.01
+        );
+
+      food = randomFood();
+
+      document
+        .getElementById("score")
+        .textContent = score;
+
+    } else {
+
+      snake.pop();
+    }
+
+    greenMoveCounter++;
+
+    greenSnakes.forEach(
+      moveGreenSnake
+    );
+  }
+}
+
+// DRAW RECT
+function drawRoundedRect(
+  x,
+  y,
+  w,
+  h,
+  r,
+  color
+){
+
+  ctx.beginPath();
+
+  ctx.moveTo(x+r,y);
+
+  ctx.lineTo(x+w-r,y);
+
+  ctx.quadraticCurveTo(
+    x+w,
+    y,
+    x+w,
+    y+r
+  );
+
+  ctx.lineTo(
+    x+w,
+    y+h-r
+  );
+
+  ctx.quadraticCurveTo(
+    x+w,
+    y+h,
+    x+w-r,
+    y+h
+  );
+
+  ctx.lineTo(
+    x+r,
+    y+h
+  );
+
+  ctx.quadraticCurveTo(
+    x,
+    y+h,
+    x,
+    y+h-r
+  );
+
+  ctx.lineTo(
+    x,
+    y+r
+  );
+
+  ctx.quadraticCurveTo(
+    x,
+    y,
+    x+r,
+    y
+  );
+
+  ctx.closePath();
+
+  ctx.fillStyle =
+    color;
+
+  ctx.fill();
+}
+
+// DRAW TRAIL
+function drawTrail(){
+
+  for(
+    let i =
+      trailParticles.length-1;
+
+    i >= 0;
+
+    i--
+  ){
+
+    const p =
+      trailParticles[i];
+
+    ctx.beginPath();
+
+    ctx.globalAlpha =
+      p.life;
+
+    ctx.fillStyle =
+      p.color;
+
+    ctx.shadowBlur = 30;
+
+    ctx.shadowColor =
+      p.color;
+
+    ctx.arc(
+
+      p.x,
+      p.y,
+
+      p.size,
+
+      0,
+      Math.PI*2
+
+    );
+
+    ctx.fill();
+
+    // FADE
+    p.life -= 0.03;
+
+    p.size *= 0.96;
+
+    // REMOVE
+    if(p.life <= 0){
+
+      trailParticles.splice(i,1);
+    }
+  }
+
+  ctx.globalAlpha = 1;
+}
+
+// DRAW SNAKES
+function drawSnakeBody(
+  snakeArray,
+  green=false
+){
+
+  snakeArray.forEach(
+    (part,index)=>{
+
+    const px =
+      part.x * grid;
+
+    const py =
+      part.y * grid;
+
+    let color;
+
+    // GREEN SNAKES
+    if(green){
+
+      color =
+        `hsl(120,100%,50%)`;
+
+      ctx.shadowBlur = 20;
+
+      ctx.shadowColor =
+        "lime";
+    }
+
+    // PLAYER
+    else{
+
+      const hue =
+        (Date.now()/15 +
+         index*30) % 360;
+
+      color =
+        `hsl(${hue},100%,50%)`;
+
+      ctx.shadowBlur = 25;
+
+      ctx.shadowColor =
+        color;
+
+      // ONLY TIP OF TAIL GLOWS
+      if(index === snakeArray.length - 1){
+
+        trailParticles.push({
+
+          x:
+            px + grid/2,
+
+          y:
+            py + grid/2,
+
+          color:
+            color,
+
+          life:1,
+
+          size:grid
+
+        });
+      }
+    }
+
+    drawRoundedRect(
+
+      px + 1,
+      py + 1,
+
+      grid - 2,
+      grid - 2,
+
+      10,
+
+      color
+
+    );
+  });
+}
+
+// RENDER
+function render(){
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  // TRAIL
+  drawTrail();
+
+  // GLOWING APPLE
+
+  const appleX =
+    food.x * grid + grid/2;
+
+  const appleY =
+    food.y * grid + grid/2;
+
+  // OUTER GLOW
+  ctx.beginPath();
+
+  ctx.fillStyle =
+    "rgba(255,0,0,0.25)";
+
+  ctx.shadowBlur = 40;
+
+  ctx.shadowColor =
+    "red";
+
+  ctx.arc(
+    appleX,
+    appleY,
+    grid,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  // INNER APPLE
+  ctx.beginPath();
+
+  ctx.fillStyle =
+    "#ff3030";
+
+  ctx.shadowBlur = 25;
+
+  ctx.shadowColor =
+    "#ff0000";
+
+  ctx.arc(
+    appleX,
+    appleY,
+    grid/2.5,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  // APPLE SHINE
+  ctx.beginPath();
+
+  ctx.fillStyle =
+    "rgba(255,255,255,0.8)";
+
+  ctx.arc(
+    appleX - 4,
+    appleY - 4,
+    3,
+    0,
+    Math.PI*2
+  );
+
+  ctx.fill();
+
+  // PLAYER
+  drawSnakeBody(
+    snake,
+    false
+  );
+
+  // GREEN SNAKES
+  greenSnakes.forEach(s=>{
+
+    drawSnakeBody(
+      s,
+      true
+    );
+
+  });
+
+  ctx.shadowBlur = 0;
+
+  // GAME OVER
+  if(gameOver){
+
+    ctx.fillStyle =
+      "rgba(0,0,0,0.5)";
+
+    ctx.fillRect(
+      0,
+      0,
+      canvas.width,
+      canvas.height
+    );
+
+    // RESTART BUTTON
+    ctx.fillStyle =
+      "cyan";
+
+    ctx.shadowBlur = 20;
+
+    ctx.shadowColor =
+      "cyan";
+
+    ctx.fillRect(
+      210,
+      200,
+      180,
+      60
+    );
+
+    // BUTTON TEXT
+    ctx.fillStyle =
+      "black";
+
+    ctx.font =
+      "30px Arial";
+
+    ctx.fillText(
+      "Restart",
+      235,
+      240
+    );
+
+    // GAME OVER TEXT
+    ctx.fillStyle =
+      "white";
+
+    ctx.shadowBlur = 20;
+
+    ctx.shadowColor =
+      "red";
+
+    ctx.font =
+      "50px Arial";
+
+    ctx.fillText(
+      "Game Over",
+      145,
+      330
+    );
+  }
+}
+
+// LOOP
+let lastTime = 0;
+
+function gameLoop(time=0){
+
+  const dt =
+    (time-lastTime)/1000;
+
+  lastTime = time;
+
+  update(dt);
+
+  render();
+
+  requestAnimationFrame(
+    gameLoop
+  );
+}
+
+// CONTROLS
+window.addEventListener(
+  "keydown",
+  e=>{
+
+  if(
+    e.key==="ArrowUp" &&
+    direction.y!==1
+  ){
+
+    nextDirection =
+      {x:0,y:-1};
+  }
+
+  if(
+    e.key==="ArrowDown" &&
+    direction.y!==-1
+  ){
+
+    nextDirection =
+      {x:0,y:1};
+  }
+
+  if(
+    e.key==="ArrowLeft" &&
+    direction.x!==1
+  ){
+
+    nextDirection =
+      {x:-1,y:0};
+  }
+
+  if(
+    e.key==="ArrowRight" &&
+    direction.x!==-1
+  ){
+
+    nextDirection =
+      {x:1,y:0};
+  }
+
+});
+
+// CLICK RESTART
+canvas.addEventListener(
+  "click",
+  e=>{
+
+  if(!gameOver) return;
+
+  const rect =
+    canvas.getBoundingClientRect();
+
+  const mouseX =
+    e.clientX - rect.left;
+
+  const mouseY =
+    e.clientY - rect.top;
+
+  if(
+
+    mouseX >= 210 &&
+    mouseX <= 390 &&
+
+    mouseY >= 200 &&
+    mouseY <= 260
+
+  ){
+
+    restart();
+  }
+
+});
+
+// RESTART
+function restart(){
+
+  init();
+}
+
+// START GAME
+init();
+
+requestAnimationFrame(
+  gameLoop
+);
+
+</script>
+
+</body>
+</html>
