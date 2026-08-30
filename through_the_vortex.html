@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-<title>Lochlann's Time Traveler - Mobile D‑Pad</title>
+<title>Lochlann's Time Traveler - Mobile D-Pad</title>
 <style>
   html, body {
     margin: 0;
@@ -39,12 +39,29 @@
     text-align: center;
     display: none;
     z-index: 20;
-    padding: 14px 18px;
-    background: rgba(0,0,0,.55);
+    padding: 20px 24px;
+    min-width: 230px;
+    background: rgba(0,0,0,.78);
     border: 1px solid rgba(255,255,255,.18);
     border-radius: 14px;
+    box-shadow: 0 12px 40px rgba(0,0,0,.55);
   }
   .overlay .small { font-size: 14px; opacity: .85; margin-top: 10px; }
+  .restart-btn {
+    margin-top: 18px;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 24px;
+    font-size: 18px;
+    font-weight: 800;
+    color: #fff;
+    background: linear-gradient(135deg, #7c3aed, #2563eb);
+    box-shadow: 0 6px 18px rgba(37,99,235,.35);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .restart-btn:hover { transform: scale(1.04); }
+  .restart-btn:active { transform: scale(0.98); }
 
   #controls {
     position: fixed;
@@ -173,7 +190,6 @@
   </div>
 </div>
 
-
 <canvas id="game"></canvas>
 
 <div class="hud">
@@ -221,7 +237,7 @@ const music = document.getElementById("music");
 music.volume = 0.3;
 let audioStarted = false;
 
-let gamePaused = true; // paused until player presses Start on the instructions popup
+let gamePaused = true;
 
 function hideHowTo() {
   const el = document.getElementById("howToBackdrop");
@@ -231,14 +247,12 @@ function hideHowTo() {
   tryStartAudio();
 }
 
-// Start button
 const howToStartBtn = document.getElementById("howToStart");
 if (howToStartBtn) {
   howToStartBtn.addEventListener("pointerdown", (e) => { e.preventDefault(); hideHowTo(); }, { passive:false });
   howToStartBtn.addEventListener("click", (e) => { e.preventDefault(); hideHowTo(); });
 }
 
-// Optional: press H to toggle instructions (desktop)
 document.addEventListener("keydown", (e) => {
   if (e.key === "h" || e.key === "H") {
     const el = document.getElementById("howToBackdrop");
@@ -246,7 +260,7 @@ document.addEventListener("keydown", (e) => {
     const isHidden = el.style.display === "none";
     el.style.display = isHidden ? "flex" : "none";
     gamePaused = !isHidden;
-    if (!isHidden) keys = {}; // clear movement when pausing
+    if (!isHidden) keys = {};
   }
 });
 
@@ -337,14 +351,67 @@ function collision(a,b){
          a.y < b.y + b.h &&
          a.y + a.h > b.y;
 }
+
+function restartGame(){
+  gameRunning = true;
+  gamePaused = false;
+  bossMode = false;
+
+  baseObstacleSpeed = 5;
+  obstacleSpeedMultiplier = 1;
+  nextSpeedIncrease = 30;
+
+  player = { x:50, y:250, w:50, h:70, speed:5 };
+  obstacles = [];
+  artifacts = [];
+  lightningTrail = [];
+
+  hammer = { active:false, x:-100, y:-100, size:50, speed:12, dir:1 };
+
+  boss = {
+    active:false,
+    x:600,
+    y:200,
+    w:180,
+    h:180,
+    health:200,
+    speed:2.4
+  };
+
+  lives = 3;
+  score = 0;
+  keys = {};
+  overlay.style.display = "none";
+  overlay.innerHTML = "";
+  updateUI();
+  spawnArtifact();
+  tryStartAudio();
+}
+
 function endGame(text){
   gameRunning = false;
   gamePaused = true;
+  keys = {};
   music.pause();
   music.currentTime = 0;
   overlay.style.display = "block";
-  overlay.innerHTML = text + '<div class="small">Refresh to restart</div>';
+  overlay.innerHTML = text +
+    '<div class="small">You ran out of lives.</div>' +
+    '<button id="restartBtn" class="restart-btn" type="button">RESTART</button>';
+
+  const restartBtn = document.getElementById("restartBtn");
+  if (restartBtn) {
+    restartBtn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      restartGame();
+    }, { passive:false });
+    restartBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      restartGame();
+    });
+  }
 }
+
 function loseLife(){
   lives--;
   updateUI();
@@ -356,7 +423,7 @@ function loseLife(){
 }
 
 function spawnObstacle(){
-    if (gamePaused) return;
+  if (gamePaused) return;
   if(!gameRunning || bossMode) return;
   obstacles.push({ x: WIDTH, y: Math.random()*(HEIGHT-50), w:50, h:50 });
 }
@@ -391,8 +458,7 @@ function drawLightning(p){
 
 function update(){
   if(!gameRunning) return;
-
-    if (gamePaused) return;
+  if (gamePaused) return;
 
   let moving = false;
   if(keys["ArrowUp"]){ player.y -= player.speed; moving = true; }
