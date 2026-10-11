@@ -99,7 +99,7 @@ body{
 
     text-align:center;
 
-    padding:40px;
+    padding:30px 40px;
 
     border-radius:24px;
 
@@ -113,6 +113,10 @@ body{
 
     box-shadow:
     0 0 40px rgba(0,0,0,0.4);
+
+    max-height:calc(100vh - 32px);
+    max-width:calc(100vw - 32px);
+    overflow-y:auto;
 }
 
 h1{
@@ -128,7 +132,7 @@ p{
 
     font-size:20px;
 
-    margin-bottom:40px;
+    margin-bottom:30px;
 
     color:#cbd5e1;
 }
@@ -137,13 +141,14 @@ p{
 
     display:block;
 
-    width:320px;
+    box-sizing:border-box;
+    width:min(364px, 100%);
 
-    margin:20px auto;
+    margin:16px auto;
 
-    padding:22px;
+    padding:20px 18px;
 
-    font-size:28px;
+    font-size:26px;
 
     text-decoration:none;
 
@@ -161,7 +166,7 @@ p{
 
 .gameButton:hover{
 
-    transform:scale(1.05);
+    transform:scale(1.03);
 }
 
 .vortex{
@@ -224,13 +229,43 @@ p{
     );
 }
 
+.hero{
+
+    background:
+    linear-gradient(
+        135deg,
+        #dc2626,
+        #f97316
+    );
+
+    box-shadow:
+    0 8px 24px rgba(249,115,22,0.22);
+}
+
+.hero:hover{
+
+    background:
+    linear-gradient(
+        135deg,
+        #ef4444,
+        #fb923c
+    );
+}
+
 .footer{
 
-    margin-top:30px;
+    margin-top:24px;
 
     font-size:16px;
 
     color:#94a3b8;
+}
+
+@media (max-width:600px){
+    .container{padding:24px 18px}
+    h1{font-size:clamp(32px,8vw,48px)}
+    .gameButton{font-size:22px;padding:17px 14px}
+    p{font-size:18px}
 }
 
 </style>
@@ -273,6 +308,13 @@ class="gameButton snake"
 href="neon_space_snake.html"
 >
 🐍 Snake Bite
+</a>
+
+<a
+class="gameButton hero"
+href="SuperHeroAcademy/index.html"
+>
+🦸 Super Hero Academy
 </a>
 
 <div class="footer">
