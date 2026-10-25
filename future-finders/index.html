@@ -94,6 +94,9 @@ footer span{display:inline-block;margin:4px 15px}
     <form id="idea-form">
       <label for="first-name">Your first name (optional)</label>
       <input id="first-name" name="first-name" autocomplete="given-name" maxlength="40" placeholder="e.g. Alex">
+      <label for="email">Email address (optional — only if you'd like a reply)</label>
+      <input id="email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com">
+      <p class="small">📨 We'll use this only to reply about your idea. If you're under 18, ask a trusted adult before sharing an email address. Leave it blank if you don't want an email reply; we can't reply to people without an email address.</p>
       <label for="idea">What's your idea?</label>
       <textarea id="idea" name="idea" maxlength="2000" required placeholder="Describe the problem you'd like to solve…"></textarea>
       <label for="problem-type">Where is the problem happening?</label>
@@ -111,7 +114,7 @@ footer span{display:inline-block;margin:4px 15px}
       <label for="website" style="position:absolute;left:-10000px" aria-hidden="true">Leave this field empty</label>
       <input id="website" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-10000px" aria-hidden="true">
       <button class="btn full" type="submit">✈ SEND MY IDEA</button>
-      <p class="small">🔒 Your idea will be sent to the project inbox after the free form service is connected. Please do not include private or identifying information. Ideas will not be posted publicly by this form.</p>
+      <p class="small">🔒 Your idea is sent to the Future Finders project inbox. If you want a reply, provide an email address above. Ideas will not be posted publicly by this form.</p>
       <p id="form-message" role="status" aria-live="polite"></p>
     </form>
   </div>
@@ -130,7 +133,7 @@ footer span{display:inline-block;margin:4px 15px}
   <div><h2>🌟 Join the Future Finders Team</h2><p>Want to help make a difference? We’re developing a team of curious people who care about solving real problems. The application process is not open yet—check back as we build it safely.</p></div>
   <a class="btn" href="parents-corner.html">JOIN NOW →</a>
 </section>
-<section class="notice" id="parents"><strong>Parents' Corner:</strong> Future Finders is a project in development. Young people should involve a trusted adult before sharing personal information or joining activities. This page will not send or store submissions until the form service is configured, and the join button is an information link rather than an application form.</section>
+<section class="notice" id="parents"><strong>Parents' Corner:</strong> Future Finders is a project in development. Young people should involve a trusted adult before sharing personal information or joining activities. Submissions are sent through the configured form service. Replies are handled manually by email when a submitter provides an email address; the join button is an information link rather than an application form.</section>
 </main>
 <footer><span>💡 Real Ideas</span><span>👥 Young Voices</span><span>🌍 Bigger Solutions</span><span>🚀 A Brighter Future</span></footer>
 <script src="config.js"></script>
@@ -157,6 +160,7 @@ document.getElementById("idea-form").addEventListener("submit", async function(e
   }
   const payload = {
     firstName: document.getElementById("first-name").value.trim(),
+    email: document.getElementById("email").value.trim(),
     idea,
     problemType: document.getElementById("problem-type").value,
     generalLocation: document.getElementById("problem-location").value.trim()
@@ -172,7 +176,7 @@ document.getElementById("idea-form").addEventListener("submit", async function(e
     });
     if (!response.ok) throw new Error("The form service could not accept your idea.");
     form.reset();
-    message.textContent = "Thank you! Your idea has been submitted to Future Finders.";
+    message.textContent = "Thank you! Your idea has been submitted to Future Finders. If you provided an email address, we can reply to you by email.";
   } catch (error) {
     message.textContent = "We couldn't send your idea. Please try again later.";
   } finally {
