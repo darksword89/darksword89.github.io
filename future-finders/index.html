@@ -326,5 +326,27 @@ document.getElementById("idea-form").addEventListener("submit", async function(e
  const hide=document.getElementById('ff-dragon-hide');
  if(hide)hide.addEventListener('click',function(){root.style.display='none';});
 })();
-</script>\n</body>
+</script>\n
+<style id="ff-dragon-hide-fix">
+#ff-baby-dragon.ff-dragon-hidden{display:none!important;visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+</style>
+<script id="ff-dragon-hide-fix-script">
+(function(){
+  var dragon=document.getElementById('ff-baby-dragon');
+  var hideButton=document.getElementById('ff-dragon-hide');
+  if(!dragon||!hideButton||hideButton.dataset.hideFixReady)return;
+  hideButton.dataset.hideFixReady='yes';
+  hideButton.addEventListener('click',function(event){
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+    dragon.classList.add('ff-dragon-hidden');
+    dragon.hidden=true;
+    dragon.setAttribute('aria-hidden','true');
+    dragon.style.setProperty('display','none','important');
+  },true);
+})();
+</script>
+
+</body>
 </html>
