@@ -146,6 +146,10 @@ footer span{display:inline-block;margin:4px 15px}
       <p class="advice-note">Messages go to the project inbox and are not automatically published. Please leave out names, school details, addresses, passwords, and other private information. This page is not an emergency service; tell a trusted adult straight away if someone may be unsafe. We can’t promise a personal reply.</p>
     </div>
     <form class="advice-form" id="advice-question-form" action="https://submit-form.com/CvNab3Gor" method="POST">
+      <input type="hidden" name="_redirect" value="https://darksword89.github.io/future-finders/?advice=sent#advice">
+      <input type="hidden" name="_error" value="https://darksword89.github.io/future-finders/?advice=error#advice">
+      <input type="hidden" name="_append" value="false">
+      <input type="hidden" name="submissionType" value="Advice column question">
       <label for="advice-question">Your question</label>
       <textarea id="advice-question" name="idea" maxlength="1500" required placeholder="What would you like advice about? Keep it general and leave out identifying details."></textarea>
       <label for="advice-name">First name (optional)</label>
@@ -262,51 +266,16 @@ document.getElementById("idea-form").addEventListener("submit", async function(e
 <script id="ff-advice-question-script">
 (function(){
   var form=document.getElementById('advice-question-form');
-  if(!form)return;
-  form.addEventListener('submit',async function(event){
-    // Keep the built-in POST action as a fallback if JavaScript is unavailable.
-    event.preventDefault();
-    var message=document.getElementById('advice-form-message');
-    var button=form.querySelector('button[type="submit"]');
-    var endpoint=window.FUTURE_FINDERS_FORM_ENDPOINT || form.action;
-    var question=document.getElementById('advice-question').value.trim();
-    if(!question){message.textContent='Please write your question first.';return;}
-    var payload={
-      firstName:document.getElementById('advice-name').value.trim(),
-      email:document.getElementById('advice-email').value.trim(),
-      idea:'ADVICE COLUMN QUESTION: '+question,
-      problemType:'advice-question',
-      generalLocation:''
-    };
-    button.disabled=true;
-    button.textContent='SENDING…';
-    message.textContent='Sending your question…';
-    try{
-      var response=await fetch(endpoint,{
-        method:'POST',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body:JSON.stringify(payload)
-      });
-      if(!response.ok){
-        var reason='';
-        try{reason=(await response.text()).trim();}catch(ignore){}
-        if(response.status===402){
-          throw new Error('The form service has reached its submission limit (HTTP 402). Your question was not confirmed as sent.');
-        }
-        if(response.status===403){
-          throw new Error('The form service blocked this submission (HTTP 403). Please try again later.');
-        }
-        throw new Error('The form service returned HTTP '+response.status+'. '+(reason||'Your question was not confirmed as sent.'));
-      }
-      form.reset();
-      message.textContent='Thank you! The form service accepted your advice question for Future Finders.';
-    }catch(error){
-      message.textContent=error&&error.message ? error.message : 'We couldn’t connect to the form service, so your question was not confirmed as sent. Please try again.';
-    }finally{
-      button.disabled=false;
-      button.textContent='✉ SEND MY QUESTION';
-    }
-  });
+  var message=document.getElementById('advice-form-message');
+  if(!form||!message)return;
+  // Use a normal browser POST to Formspark so submission works without AJAX/CORS.
+  var result=new URLSearchParams(window.location.search).get('advice');
+  if(result==='sent'){
+    message.textContent='Thank you! Your advice question was accepted by the form service.';
+    form.reset();
+  }else if(result==='error'){
+    message.textContent='The form service could not accept your question. Please try again. Your question has not been confirmed as sent.';
+  }
 })();
 </script>
 
@@ -470,6 +439,13 @@ document.getElementById("idea-form").addEventListener("submit", async function(e
   },true);
 })();
 </script>
+
+<style id="ff-advice-click-priority">
+/* Keep the advice form clickable when the flying dragon reaches the bottom edge. */
+#ff-baby-dragon .ff-dragon-fly{z-index:9998!important}
+#ff-baby-dragon .ff-dragon-message{z-index:9997!important}
+.advice-question-panel{position:relative;z-index:10000}
+</style>
 
 </body>
 </html>
