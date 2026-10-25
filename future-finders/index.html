@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Future Finders: big problems, brilliant ideas, a better future. Discover ways to help solve real-world problems with creative ideas.">
+<meta name="theme-color" content="#ffffff">
+<title>Future Finders — Big Problems. Brilliant Ideas.</title>
+<style>
+:root{--navy:#092a78;--blue:#0879ed;--pink:#f20acb;--purple:#6d20ee;--green:#25d66f;--gold:#ffc928;--sky:#dff7ff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--navy);background:#fff;line-height:1.5}
+a{color:inherit}
+header{position:sticky;top:0;z-index:5;background:#ffffffed;backdrop-filter:blur(12px);border-bottom:1px solid #e6edff}
+.nav{max-width:1240px;margin:auto;padding:12px 22px;display:flex;align-items:center;gap:18px}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;font-weight:900;font-size:clamp(20px,3vw,34px);line-height:1}
+.planet{display:grid;place-items:center;width:56px;height:56px;border-radius:50%;background:conic-gradient(#ff3fcb,#ffd62c,#3be77a,#17c8ff,#743cff,#ff3fcb);font-size:34px;box-shadow:0 0 0 5px #fff,0 0 18px #b6d9ff}
+.brand small{display:block;font-size:12px;font-weight:600;margin-top:7px;letter-spacing:.1px}
+nav{display:flex;align-items:center;gap:18px;margin-left:auto}
+nav a{text-decoration:none;font-weight:750;font-size:14px}
+nav a:hover{text-decoration:underline;text-decoration-color:#ff3bbf;text-decoration-thickness:3px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border:0;border-radius:999px;padding:13px 22px;font-weight:850;color:white;background:linear-gradient(100deg,#fb13cf,#772cff,#00aaff,#19c96b);box-shadow:0 5px 0 #092a7820;cursor:pointer;transition:transform .18s}
+.btn:hover{transform:translateY(-2px)}
+main{overflow:hidden}
+.hero{position:relative;isolation:isolate;background:linear-gradient(120deg,#91efff,#fff 43%,#fff3fc 70%,#fff4b8);padding:54px 22px 36px}
+.hero:before,.hero:after{content:"";position:absolute;z-index:-1;pointer-events:none;border-radius:50%;filter:blur(2px)}
+.hero:before{width:450px;height:450px;right:4%;top:-190px;background:conic-gradient(#ff23c8,#ffbd24,#75f64c,#1ad8ff,#862fff,#ff23c8);opacity:.72}
+.hero:after{width:320px;height:320px;left:-180px;bottom:-120px;background:conic-gradient(#ff23c8,#ffbd24,#75f64c,#1ad8ff,#862fff,#ff23c8);opacity:.45}
+.hero-inner{max-width:1200px;margin:auto;display:grid;grid-template-columns:1fr .95fr;gap:26px;align-items:center}
+h1{font-size:clamp(40px,6vw,76px);line-height:1.03;letter-spacing:-2px;margin:0 0 18px;max-width:640px}
+.gradient-text{background:linear-gradient(90deg,#fb16c8,#7733f3,#008dff,#16bf61);background-clip:text;color:transparent}
+.lead{font-size:clamp(17px,2vw,22px);max-width:560px;margin:0 0 24px}
+.flower-stage{min-height:280px;display:grid;place-items:center;position:relative}
+.flower{font-size:clamp(150px,22vw,260px);line-height:1;filter:drop-shadow(0 14px 8px #243e8c2b);transform:rotate(-8deg)}
+.splash{position:absolute;font-size:clamp(24px,4vw,48px);animation:float 4s ease-in-out infinite}
+.s1{top:8%;left:8%}.s2{right:3%;top:16%;animation-delay:.7s}.s3{bottom:4%;left:10%;animation-delay:1.3s}.s4{right:12%;bottom:7%;animation-delay:1.8s}
+@keyframes float{50%{transform:translateY(-12px) rotate(8deg)}}
+.content-grid{max-width:1200px;margin:-5px auto 30px;padding:0 22px;display:grid;grid-template-columns:1.04fr .96fr;gap:22px;position:relative}
+.panel{background:#fff;border:2px solid #cce5ff;border-radius:26px;padding:24px;box-shadow:0 14px 34px #092a7814}
+.panel h2{font-size:clamp(24px,3vw,34px);margin:0 0 8px;line-height:1.15}
+.sub{margin:0 0 20px;color:#31528c}
+label{display:block;font-weight:800;margin:14px 0 7px}
+input,textarea{width:100%;font:inherit;padding:13px 14px;border:2px solid #b7d9ff;border-radius:13px;background:#fbfdff;color:#092a78}
+textarea{min-height:112px;resize:vertical}
+input:focus,textarea:focus{outline:3px solid #a5f3fc;border-color:#1688ff}
+.full{width:100%;margin-top:16px;font-size:16px}
+.small{font-size:13px;color:#385487;margin:12px 0 0}
+.steps{display:grid;gap:10px;margin-top:18px}
+.step{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:start;border-radius:17px;padding:13px;background:linear-gradient(110deg,#e2f6ff,#f8fcff)}
+.step:nth-child(2){background:linear-gradient(110deg,#e6ffe9,#f9fff9)}
+.step:nth-child(3){background:linear-gradient(110deg,#f4e8ff,#fff9ff)}
+.step:nth-child(4){background:linear-gradient(110deg,#fff4cf,#fffdf5)}
+.step:nth-child(5){background:linear-gradient(110deg,#d8fbff,#f8ffff)}
+.num{display:grid;place-items:center;border-radius:50%;width:40px;height:40px;color:white;font-size:21px;font-weight:900;background:linear-gradient(135deg,#168bff,#6930ef)}
+.step h3{margin:0 0 3px;font-size:17px}.step p{margin:0;font-size:14px}
+.team{max-width:1156px;margin:28px auto 40px;padding:28px 22px;border-radius:26px;background:linear-gradient(110deg,#e9f9ff,#fff0fb,#fff9d9);border:2px solid #fff;box-shadow:0 10px 35px #092a7818;display:flex;align-items:center;justify-content:space-between;gap:24px}
+.team h2{margin:0 0 8px;font-size:clamp(25px,3vw,36px)}.team p{margin:0;max-width:700px}
+.notice{max-width:1156px;margin:0 auto 30px;padding:0 22px;font-size:13px;color:#395484}
+footer{background:#082866;color:#fff;text-align:center;padding:24px 16px;font-weight:800}
+footer span{display:inline-block;margin:4px 15px}
+#form-message{font-weight:750;margin-top:12px}
+@media(max-width:850px){.nav{flex-wrap:wrap}.nav nav{order:3;width:100%;justify-content:center;flex-wrap:wrap;margin:4px 0}.nav>.btn{margin-left:auto}.hero-inner,.content-grid{grid-template-columns:1fr}.flower-stage{min-height:190px}.flower{font-size:180px}.content-grid{margin-top:18px}.team{margin-left:22px;margin-right:22px;align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.nav{padding:10px 14px}.planet{width:44px;height:44px;font-size:27px}.brand small{font-size:10px}.nav>.btn{padding:10px 13px;font-size:13px}.hero{padding-top:35px}.panel{padding:18px}.team{padding:22px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <div class="nav">
+    <a class="brand" href="#home" aria-label="Future Finders home"><span class="planet" aria-hidden="true">🌍</span><span>Future Finders<small>Big problems. Brilliant ideas. A better future.</small></span></a>
+    <nav aria-label="Main navigation"><a href="#home">Home</a><a href="#about">About</a><a href="#ideas">Our Ideas</a><a href="#join">Get Involved</a><a href="#parents">Parents' Corner</a></nav>
+    <a class="btn" href="#join">👥 Join the Team</a>
+  </div>
+</header>
+<main id="home">
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <h1>Got an idea that could <span class="gradient-text">change the world?</span></h1>
+      <p class="lead">Tell Future Finders about a problem you think we should solve. Every brilliant solution starts with someone asking, “What if?”</p>
+      <a class="btn" href="#ideas">💡 Share Your Idea</a>
+    </div>
+    <div class="flower-stage" aria-label="A colourful rainbow flower bursting into bright splashes">
+      <span class="splash s1">💧</span><span class="splash s2">✨</span><span class="splash s3">🌈</span><span class="splash s4">💖</span>
+      <div class="flower" aria-hidden="true">🌺</div>
+    </div>
+  </div>
+</section>
+<section class="content-grid" id="ideas">
+  <div class="panel">
+    <h2>💡 Share Your Idea</h2>
+    <p class="sub">Have you spotted a problem that needs a clever solution? This is where your idea will go.</p>
+    <form id="idea-form">
+      <label for="first-name">Your first name (optional)</label>
+      <input id="first-name" name="first-name" autocomplete="given-name" maxlength="40" placeholder="e.g. Alex">
+      <label for="idea">What's your idea?</label>
+      <textarea id="idea" name="idea" maxlength="2000" required placeholder="Describe the problem you'd like to solve…"></textarea>
+      <button class="btn full" type="submit">✈ SEND MY IDEA</button>
+      <p class="small">🔒 Privacy matters. Don't include your address, school, contact details, passwords, or other sensitive information. Ideas won't be shared publicly without permission.</p>
+      <p id="form-message" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+  <div class="panel" id="about">
+    <h2>✨ How It Works</h2>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div><h3>Share your idea</h3><p>Tell us about a problem and a solution you imagine.</p></div></div>
+      <div class="step"><div class="num">2</div><div><h3>Your idea deserves care</h3><p>We want to treat submissions respectfully and keep personal information private.</p></div></div>
+      <div class="step"><div class="num">3</div><div><h3>We explore possibilities</h3><p>The Future Finders team can consider which ideas might be worth researching.</p></div></div>
+      <div class="step"><div class="num">4</div><div><h3>You choose what to share</h3><p>An idea should only be shared more widely with appropriate permission.</p></div></div>
+      <div class="step"><div class="num">5</div><div><h3>A safer space for young people</h3><p>We plan to build this project with trusted-adult support and child-friendly safeguards.</p></div></div>
+    </div>
+  </div>
+</section>
+<section class="team" id="join">
+  <div><h2>🌟 Join the Future Finders Team</h2><p>Want to help make a difference? We’re developing a team of curious people who care about solving real problems. The application process is not open yet—check back as we build it safely.</p></div>
+  <a class="btn" href="#parents">JOIN NOW →</a>
+</section>
+<section class="notice" id="parents"><strong>Parents' Corner:</strong> Future Finders is a project in development. Young people should involve a trusted adult before sharing personal information or joining activities. This demo page does not yet send or store submissions, and the join button is an information link rather than an application form.</section>
+</main>
+<footer><span>💡 Real Ideas</span><span>👥 Young Voices</span><span>🌍 Bigger Solutions</span><span>🚀 A Brighter Future</span></footer>
+<script>
+document.getElementById('idea-form').addEventListener('submit',function(event){
+  event.preventDefault();
+  document.getElementById('form-message').textContent='Thanks for your enthusiasm! This demo form is not connected yet, so your idea has NOT been sent or saved. Please don’t enter private information until a trusted adult helps set up a secure submission system.';
+});
+</script>
+</body>
+</html>
