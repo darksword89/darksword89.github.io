@@ -145,14 +145,15 @@ footer span{display:inline-block;margin:4px 15px}
       <p>Have a general question you’d like the Future Finders team to consider for a future advice column? Write it here. You don’t need to give your name.</p>
       <p class="advice-note">Messages go to the project inbox and are not automatically published. Please leave out names, school details, addresses, passwords, and other private information. This page is not an emergency service; tell a trusted adult straight away if someone may be unsafe. We can’t promise a personal reply.</p>
     </div>
-    <form class="advice-form" id="advice-question-form">
+    <form class="advice-form" id="advice-question-form" action="https://submit-form.com/CvNab3Gor" method="POST">
       <label for="advice-question">Your question</label>
-      <textarea id="advice-question" name="advice-question" maxlength="1500" required placeholder="What would you like advice about? Keep it general and leave out identifying details."></textarea>
+      <textarea id="advice-question" name="idea" maxlength="1500" required placeholder="What would you like advice about? Keep it general and leave out identifying details."></textarea>
       <label for="advice-name">First name (optional)</label>
-      <input id="advice-name" name="advice-name" maxlength="40" autocomplete="off" placeholder="Leave blank to stay unnamed">
+      <input id="advice-name" name="firstName" maxlength="40" autocomplete="off" placeholder="Leave blank to stay unnamed">
       <label for="advice-email">Email address (optional, if you’d like a reply)</label>
-      <input id="advice-email" name="advice-email" type="email" maxlength="254" autocomplete="email" placeholder="you@example.com">
-      <button class="btn full" type="submit">✉ SEND MY QUESTION</button>
+      <input id="advice-email" name="email" type="email" maxlength="254" autocomplete="email" placeholder="you@example.com">
+      <input type="hidden" name="problemType" value="advice-question">
+      <button class="btn full" type="submit" style="position:relative;z-index:2147483648">✉ SEND MY QUESTION</button>
       <p id="advice-form-message" role="status" aria-live="polite"></p>
     </form>
   </div>
@@ -263,11 +264,11 @@ document.getElementById("idea-form").addEventListener("submit", async function(e
   var form=document.getElementById('advice-question-form');
   if(!form)return;
   form.addEventListener('submit',async function(event){
+    // Keep the built-in POST action as a fallback if JavaScript is unavailable.
     event.preventDefault();
     var message=document.getElementById('advice-form-message');
     var button=form.querySelector('button[type="submit"]');
-    var endpoint=window.FUTURE_FINDERS_FORM_ENDPOINT;
-    if(!endpoint){message.textContent='The question form is not configured yet, so your question has NOT been sent.';return;}
+    var endpoint=window.FUTURE_FINDERS_FORM_ENDPOINT || form.action;
     var question=document.getElementById('advice-question').value.trim();
     if(!question){message.textContent='Please write your question first.';return;}
     var payload={
@@ -277,16 +278,33 @@ document.getElementById("idea-form").addEventListener("submit", async function(e
       problemType:'advice-question',
       generalLocation:''
     };
-    button.disabled=true;button.textContent='SENDING…';message.textContent='Sending your question…';
+    button.disabled=true;
+    button.textContent='SENDING…';
+    message.textContent='Sending your question…';
     try{
-      var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
-      if(!response.ok)throw new Error('Form service rejected the question.');
+      var response=await fetch(endpoint,{
+        method:'POST',
+        headers:{'Content-Type':'application/json','Accept':'application/json'},
+        body:JSON.stringify(payload)
+      });
+      if(!response.ok){
+        var reason='';
+        try{reason=(await response.text()).trim();}catch(ignore){}
+        if(response.status===402){
+          throw new Error('The form service has reached its submission limit (HTTP 402). Your question was not confirmed as sent.');
+        }
+        if(response.status===403){
+          throw new Error('The form service blocked this submission (HTTP 403). Please try again later.');
+        }
+        throw new Error('The form service returned HTTP '+response.status+'. '+(reason||'Your question was not confirmed as sent.'));
+      }
       form.reset();
-      message.textContent='Thank you! Your advice question has been sent to the Future Finders project inbox.';
+      message.textContent='Thank you! The form service accepted your advice question for Future Finders.';
     }catch(error){
-      message.textContent='We couldn’t send your question. Please try again later.';
+      message.textContent=error&&error.message ? error.message : 'We couldn’t connect to the form service, so your question was not confirmed as sent. Please try again.';
     }finally{
-      button.disabled=false;button.textContent='✉ SEND MY QUESTION';
+      button.disabled=false;
+      button.textContent='✉ SEND MY QUESTION';
     }
   });
 })();
