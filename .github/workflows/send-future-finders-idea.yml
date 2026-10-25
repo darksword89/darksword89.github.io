@@ -1,0 +1,92 @@
+name: Send Future Finders idea by email
+
+on:
+  workflow_dispatch:
+    inputs:
+      submitter_name:
+        description: "Name (optional)"
+        required: false
+        type: string
+      submitter_email:
+        description: "Email address (optional)"
+        required: false
+        type: string
+      idea:
+        description: "The idea to send"
+        required: true
+        type: string
+      general_location:
+        description: "General location only (optional; no exact addresses)"
+        required: false
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  send-idea:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send idea using Resend
+        env:
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          IDEA_RECIPIENT_EMAIL: ${{ secrets.IDEA_RECIPIENT_EMAIL }}
+          SUBMITTER_NAME: ${{ inputs.submitter_name }}
+          SUBMITTER_EMAIL: ${{ inputs.submitter_email }}
+          IDEA: ${{ inputs.idea }}
+          GENERAL_LOCATION: ${{ inputs.general_location }}
+        run: |
+          set -euo pipefail
+          if [ -z "${RESEND_API_KEY}" ] || [ -z "${RESEND_FROM_EMAIL}" ] || [ -z "${IDEA_RECIPIENT_EMAIL}" ]; then
+            echo "Missing one or more required GitHub Actions secrets: RESEND_API_KEY, RESEND_FROM_EMAIL, IDEA_RECIPIENT_EMAIL."
+            exit 1
+          fi
+          node <<'NODE'
+          const required = ['RESEND_API_KEY', 'RESEND_FROM_EMAIL', 'IDEA_RECIPIENT_EMAIL'];
+          for (const key of required) {
+            if (!process.env[key]) throw new Error('Missing required secret: ' + key);
+          }
+          const esc = (s) => String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+          const text = [
+            'New Future Finders idea',
+            '',
+            'Name: ' + (process.env.SUBMITTER_NAME || 'Not provided'),
+            'Email: ' + (process.env.SUBMITTER_EMAIL || 'Not provided'),
+            'General location: ' + (process.env.GENERAL_LOCATION || 'Not provided'),
+            '',
+            'Idea:',
+            process.env.IDEA || ''
+          ].join('\n');
+          const html = '<h2>New Future Finders idea</h2>' +
+            '<p><b>Name:</b> ' + esc(process.env.SUBMITTER_NAME || 'Not provided') + '</p>' +
+            '<p><b>Email:</b> ' + esc(process.env.SUBMITTER_EMAIL || 'Not provided') + '</p>' +
+            '<p><b>General location:</b> ' + esc(process.env.GENERAL_LOCATION || 'Not provided') + '</p>' +
+            '<h3>Idea</h3><p>' + esc(process.env.IDEA || '').replace(/\n/g, '<br>') + '</p>';
+          (async () => {
+            const response = await fetch('https://api.resend.com/emails', {
+              method: 'POST',
+              headers: {
+                'Authorization': 'Bearer ' + process.env.RESEND_API_KEY,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                from: process.env.RESEND_FROM_EMAIL,
+                to: [process.env.IDEA_RECIPIENT_EMAIL],
+                subject: 'New Future Finders idea',
+                text,
+                html
+              })
+            });
+            const body = await response.text();
+            if (!response.ok) {
+              console.error('Resend rejected the email. HTTP status:', response.status);
+              console.error(body.slice(0, 1000));
+              process.exit(1);
+            }
+            console.log('Resend accepted the email request.');
+          })().catch(error => {
+            console.error('Email send failed:', error.message);
+            process.exit(1);
+          });
+          NODE
