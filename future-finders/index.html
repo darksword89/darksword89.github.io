@@ -105,11 +105,13 @@ footer span{display:inline-block;margin:4px 15px}
         <option value="online">Online</option>
         <option value="other">Somewhere else</option>
       </select>
-      <label for="problem-location">Location of the problem (optional)</label>
-      <input id="problem-location" name="problem-location" maxlength="300" autocomplete="off" placeholder="e.g. a park name, building, street, or address if necessary">
-      <p class="small">📍 Only include an exact home address if it is genuinely needed to understand the problem. If you are under 18, ask a trusted adult before sharing an address. Do not include anyone else's address without their permission.</p>
+      <label for="problem-location">General location (optional)</label>
+      <input id="problem-location" name="problem-location" maxlength="120" autocomplete="off" placeholder="e.g. a park, school, or town (no exact address)">
+      <p class="small">📍 Please do not enter a home address, phone number, full name, or other private details. A general place is enough. Ask a trusted adult if you are unsure what to share.</p>
+      <label for="website" style="position:absolute;left:-10000px" aria-hidden="true">Leave this field empty</label>
+      <input id="website" name="website" tabindex="-1" autocomplete="off" style="position:absolute;left:-10000px" aria-hidden="true>
       <button class="btn full" type="submit">✈ SEND MY IDEA</button>
-      <p class="small">🔒 Privacy matters. This form is not connected yet, so don't submit real addresses or other private information. Ideas won't be shared publicly without permission.</p>
+      <p class="small">🔒 Your idea will be emailed privately to the project inbox once the secure service is configured. Please do not include private or identifying information. Ideas will not be posted publicly by this form.</p>
       <p id="form-message" role="status" aria-live="polite"></p>
     </form>
   </div>
@@ -131,10 +133,49 @@ footer span{display:inline-block;margin:4px 15px}
 <section class="notice" id="parents"><strong>Parents' Corner:</strong> Future Finders is a project in development. Young people should involve a trusted adult before sharing personal information or joining activities. This demo page does not yet send or store submissions, and the join button is an information link rather than an application form.</section>
 </main>
 <footer><span>💡 Real Ideas</span><span>👥 Young Voices</span><span>🌍 Bigger Solutions</span><span>🚀 A Brighter Future</span></footer>
+<script src="config.js"></script>
 <script>
-document.getElementById('idea-form').addEventListener('submit',function(event){
+document.getElementById("idea-form").addEventListener("submit", async function(event) {
   event.preventDefault();
-  document.getElementById('form-message').textContent='Thanks for your enthusiasm! This demo form is not connected yet, so your idea has NOT been sent or saved. Please don’t enter private information until a trusted adult helps set up a secure submission system.';
+  const form = event.currentTarget;
+  const message = document.getElementById("form-message");
+  const button = form.querySelector("button[type=submit]");
+  const endpoint = window.FUTURE_FINDERS_API_URL;
+  if (!endpoint) {
+    message.textContent = "The secure email service is being set up. Your idea has NOT been sent. Please try again later.";
+    return;
+  }
+  const idea = document.getElementById("idea").value.trim();
+  if (!idea) {
+    message.textContent = "Please describe your idea first.";
+    return;
+  }
+  const payload = {
+    firstName: document.getElementById("first-name").value.trim(),
+    idea,
+    problemType: document.getElementById("problem-type").value,
+    generalLocation: document.getElementById("problem-location").value.trim(),
+    website: document.getElementById("website").value
+  };
+  button.disabled = true;
+  button.textContent = "SENDING…";
+  message.textContent = "Sending your idea securely…";
+  try {
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+    const result = await response.json().catch(() => ({}));
+    if (!response.ok || !result.ok) throw new Error(result.error || "The idea could not be sent.");
+    form.reset();
+    message.textContent = "Thank you! Your idea has been sent to Future Finders for review.";
+  } catch (error) {
+    message.textContent = error.message || "We couldn't send your idea. Please try again later.";
+  } finally {
+    button.disabled = false;
+    button.textContent = "✈ SEND MY IDEA";
+  }
 });
 </script>
 </body>
