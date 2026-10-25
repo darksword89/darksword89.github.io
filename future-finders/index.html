@@ -88,6 +88,76 @@ footer span{display:inline-block;margin:4px 15px}
     </div>
   </div>
 </section>
+
+
+<style id="ff-advice-column-style">
+.advice-column{max-width:1200px;margin:34px auto 42px;padding:0 22px}
+.advice-top{display:flex;align-items:end;justify-content:space-between;gap:18px;margin-bottom:18px}
+.advice-kicker{display:inline-block;font-size:13px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#6d20ee;margin-bottom:7px}
+.advice-top h2{font-size:clamp(29px,4vw,43px);line-height:1.08;letter-spacing:-1px;margin:0 0 8px}
+.advice-top p{max-width:700px;margin:0;color:#31528c}
+.advice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.advice-card{border:2px solid #d8e8ff;border-radius:22px;padding:20px;background:linear-gradient(145deg,#effaff,#fff);box-shadow:0 9px 25px #092a780e}
+.advice-card:nth-child(2){background:linear-gradient(145deg,#f5edff,#fff);border-color:#e5d7ff}
+.advice-card:nth-child(3){background:linear-gradient(145deg,#fff6d9,#fff);border-color:#ffe8a1}
+.advice-icon{font-size:29px;line-height:1;margin-bottom:12px}
+.advice-card h3{font-size:19px;line-height:1.22;margin:0 0 9px}
+.advice-card p{margin:0;color:#31528c;font-size:15px}
+.advice-question-panel{display:grid;grid-template-columns:.85fr 1.15fr;gap:24px;align-items:start;margin-top:20px;padding:24px;border-radius:24px;background:linear-gradient(110deg,#e8fff0,#eaf8ff 58%,#fff0fb);border:2px solid #d4f3e2}
+.advice-question-panel h3{font-size:25px;line-height:1.15;margin:0 0 9px}
+.advice-question-panel p{margin:0 0 10px;color:#31528c}
+.advice-form label{margin-top:10px}
+.advice-form textarea{min-height:95px}
+.advice-form .btn{margin-top:13px}
+#advice-form-message{font-weight:800;margin-top:10px;color:#092a78}
+.advice-note{font-size:12px!important;margin-top:12px!important}
+@media(max-width:850px){.advice-grid{grid-template-columns:1fr}.advice-top{align-items:flex-start;flex-direction:column}.advice-question-panel{grid-template-columns:1fr}}
+</style>
+
+<section class="advice-column" id="advice" aria-labelledby="advice-title">
+  <div class="advice-top">
+    <div>
+      <span class="advice-kicker">💌 The Future Finders Advice Corner</span>
+      <h2 id="advice-title">Kind advice for tricky moments</h2>
+      <p>Questions, worries, friendship problems or big ideas? Start with a small step, be kind to yourself, and remember that asking for help is a strength.</p>
+    </div>
+  </div>
+  <div class="advice-grid">
+    <article class="advice-card">
+      <div class="advice-icon" aria-hidden="true">💡</div>
+      <h3>“What if my idea sounds silly?”</h3>
+      <p>Ideas don’t have to be perfect to be worth exploring. Write down the problem, think of one small step, and ask someone you trust to help you explore it. Brilliant ideas often begin with a question.</p>
+    </article>
+    <article class="advice-card">
+      <div class="advice-icon" aria-hidden="true">💚</div>
+      <h3>“Someone is being left out. What can I do?”</h3>
+      <p>You could invite them to join in, listen kindly, or check how they’re feeling. If someone is being bullied or treated unfairly, tell a trusted adult. You don’t have to handle it alone.</p>
+    </article>
+    <article class="advice-card">
+      <div class="advice-icon" aria-hidden="true">🌱</div>
+      <h3>“The problem feels too big. Where do I start?”</h3>
+      <p>Pick one small, safe thing you can do. Ask what would make things a little easier, then get help from a trusted adult when the problem affects someone’s safety or wellbeing.</p>
+    </article>
+  </div>
+  <div class="advice-question-panel">
+    <div>
+      <h3>💌 Send us an advice question</h3>
+      <p>Have a general question you’d like the Future Finders team to consider for a future advice column? Write it here. You don’t need to give your name.</p>
+      <p class="advice-note">Messages go to the project inbox and are not automatically published. Please leave out names, school details, addresses, passwords, and other private information. This page is not an emergency service; tell a trusted adult straight away if someone may be unsafe. We can’t promise a personal reply.</p>
+    </div>
+    <form class="advice-form" id="advice-question-form">
+      <label for="advice-question">Your question</label>
+      <textarea id="advice-question" name="advice-question" maxlength="1500" required placeholder="What would you like advice about? Keep it general and leave out identifying details."></textarea>
+      <label for="advice-name">First name (optional)</label>
+      <input id="advice-name" name="advice-name" maxlength="40" autocomplete="off" placeholder="Leave blank to stay unnamed">
+      <label for="advice-email">Email address (optional, if you’d like a reply)</label>
+      <input id="advice-email" name="advice-email" type="email" maxlength="254" autocomplete="email" placeholder="you@example.com">
+      <button class="btn full" type="submit">✉ SEND MY QUESTION</button>
+      <p id="advice-form-message" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+
 <section class="content-grid" id="ideas">
   <div class="panel">
     <h2>💡 Share Your Idea</h2>
@@ -185,6 +255,41 @@ document.getElementById("idea-form").addEventListener("submit", async function(e
     button.textContent = "✈ SEND MY IDEA";
   }
 });
+</script>
+
+
+<script id="ff-advice-question-script">
+(function(){
+  var form=document.getElementById('advice-question-form');
+  if(!form)return;
+  form.addEventListener('submit',async function(event){
+    event.preventDefault();
+    var message=document.getElementById('advice-form-message');
+    var button=form.querySelector('button[type="submit"]');
+    var endpoint=window.FUTURE_FINDERS_FORM_ENDPOINT;
+    if(!endpoint){message.textContent='The question form is not configured yet, so your question has NOT been sent.';return;}
+    var question=document.getElementById('advice-question').value.trim();
+    if(!question){message.textContent='Please write your question first.';return;}
+    var payload={
+      firstName:document.getElementById('advice-name').value.trim(),
+      email:document.getElementById('advice-email').value.trim(),
+      idea:'ADVICE COLUMN QUESTION: '+question,
+      problemType:'advice-question',
+      generalLocation:''
+    };
+    button.disabled=true;button.textContent='SENDING…';message.textContent='Sending your question…';
+    try{
+      var response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)});
+      if(!response.ok)throw new Error('Form service rejected the question.');
+      form.reset();
+      message.textContent='Thank you! Your advice question has been sent to the Future Finders project inbox.';
+    }catch(error){
+      message.textContent='We couldn’t send your question. Please try again later.';
+    }finally{
+      button.disabled=false;button.textContent='✉ SEND MY QUESTION';
+    }
+  });
+})();
 </script>
 
 <!-- Future Finders tiny green baby dragon helper -->
