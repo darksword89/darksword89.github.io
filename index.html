@@ -2,328 +2,39 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Game Portal</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Darksword89's games and Future Finders, a place for big problems and brilliant ideas.">
+<title>Darksword89 — Games & Future Finders</title>
 <style>
-
-body{
-    margin:0;
-    overflow:hidden;
-    font-family:Arial,sans-serif;
-
-    background:
-    linear-gradient(
-        to bottom,
-        #0f172a,
-        #1e293b
-    );
-
-    color:white;
-
-    display:flex;
-    justify-content:center;
-    align-items:center;
-
-    height:100vh;
-}
-
-.backgroundGlow{
-
-    position:absolute;
-    width:100%;
-    height:100%;
-    overflow:hidden;
-}
-
-.glow{
-
-    position:absolute;
-
-    border-radius:50%;
-
-    background:
-    rgba(59,130,246,0.15);
-
-    animation:float 10s infinite ease-in-out;
-}
-
-.glow:nth-child(1){
-
-    width:300px;
-    height:300px;
-
-    left:10%;
-    top:20%;
-}
-
-.glow:nth-child(2){
-
-    width:250px;
-    height:250px;
-
-    right:15%;
-    top:10%;
-}
-
-.glow:nth-child(3){
-
-    width:400px;
-    height:400px;
-
-    left:35%;
-    bottom:-100px;
-}
-
-@keyframes float{
-
-    0%{
-        transform:translateY(0px);
-    }
-
-    50%{
-        transform:translateY(-30px);
-    }
-
-    100%{
-        transform:translateY(0px);
-    }
-}
-
-.container{
-
-    position:relative;
-
-    z-index:10;
-
-    text-align:center;
-
-    padding:30px 40px;
-
-    border-radius:24px;
-
-    background:
-    rgba(15,23,42,0.75);
-
-    border:
-    1px solid rgba(255,255,255,0.08);
-
-    backdrop-filter:blur(10px);
-
-    box-shadow:
-    0 0 40px rgba(0,0,0,0.4);
-
-    max-height:calc(100vh - 32px);
-    max-width:calc(100vw - 32px);
-    overflow-y:auto;
-}
-
-h1{
-
-    font-size:56px;
-
-    margin-bottom:20px;
-
-    color:#93c5fd;
-}
-
-p{
-
-    font-size:20px;
-
-    margin-bottom:30px;
-
-    color:#cbd5e1;
-}
-
-.gameButton{
-
-    display:block;
-
-    box-sizing:border-box;
-    width:min(364px, 100%);
-
-    margin:16px auto;
-
-    padding:20px 18px;
-
-    font-size:26px;
-
-    text-decoration:none;
-
-    color:white;
-
-    border-radius:18px;
-
-    transition:
-    transform 0.2s,
-    background 0.3s;
-
-    box-shadow:
-    0 8px 20px rgba(0,0,0,0.3);
-}
-
-.gameButton:hover{
-
-    transform:scale(1.03);
-}
-
-.vortex{
-
-    background:
-    linear-gradient(
-        135deg,
-        #7c3aed,
-        #3b82f6
-    );
-}
-
-.vortex:hover{
-
-    background:
-    linear-gradient(
-        135deg,
-        #8b5cf6,
-        #60a5fa
-    );
-}
-
-.shape{
-
-    background:
-    linear-gradient(
-        135deg,
-        #16a34a,
-        #22c55e
-    );
-}
-
-.shape:hover{
-
-    background:
-    linear-gradient(
-        135deg,
-        #22c55e,
-        #4ade80
-    );
-}
-
-.snake{
-
-    background:
-    linear-gradient(
-        135deg,
-        #ec4899,
-        #f97316
-    );
-}
-
-.snake:hover{
-
-    background:
-    linear-gradient(
-        135deg,
-        #f472b6,
-        #fb923c
-    );
-}
-
-.hero{
-
-    background:
-    linear-gradient(
-        135deg,
-        #dc2626,
-        #f97316
-    );
-
-    box-shadow:
-    0 8px 24px rgba(249,115,22,0.22);
-}
-
-.hero:hover{
-
-    background:
-    linear-gradient(
-        135deg,
-        #ef4444,
-        #fb923c
-    );
-}
-
-.future{\n    background:linear-gradient(135deg,#ec4899,#8b5cf6,#0ea5e9,#22c55e);\n}\n\n.future:hover{background:linear-gradient(135deg,#f472b6,#a78bfa,#38bdf8,#4ade80)}\n\n.footer{
-
-    margin-top:24px;
-
-    font-size:16px;
-
-    color:#94a3b8;
-}
-
-@media (max-width:600px){
-    .container{padding:24px 18px}
-    h1{font-size:clamp(32px,8vw,48px)}
-    .gameButton{font-size:22px;padding:17px 14px}
-    p{font-size:18px}
-}
-
+:root{color-scheme:dark;font-family:Arial,Helvetica,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;color:#f8fafc;background:radial-gradient(circle at 15% 10%,#243b76 0,transparent 35%),radial-gradient(circle at 90% 80%,#48216b 0,transparent 32%),linear-gradient(145deg,#071225,#111827);display:flex;justify-content:center;align-items:center;padding:24px}
+.container{width:min(760px,100%);text-align:center;padding:clamp(22px,5vw,44px);border:1px solid #ffffff20;border-radius:28px;background:#0f172ad9;box-shadow:0 24px 80px #0006}
+h1{font-size:clamp(34px,7vw,58px);margin:0 0 10px;color:#bfdbfe}
+.intro{font-size:clamp(16px,2.8vw,20px);color:#cbd5e1;margin:0 0 28px}
+a{display:block;width:min(500px,100%);margin:13px auto;padding:17px 18px;border-radius:17px;text-decoration:none;color:white;font-size:clamp(18px,3vw,23px);font-weight:800;box-shadow:0 8px 22px #0003;transition:transform .18s,filter .18s}
+a:hover{transform:translateY(-3px);filter:brightness(1.12)}
+.featured{font-size:clamp(22px,4vw,29px);padding:22px;background:linear-gradient(110deg,#ec4899,#8b5cf6,#0ea5e9,#22c55e);border:2px solid #ffffff90;box-shadow:0 0 30px #8b5cf655}
+.vortex{background:linear-gradient(135deg,#7c3aed,#3b82f6)}
+.shape{background:linear-gradient(135deg,#16a34a,#22c55e)}
+.snake{background:linear-gradient(135deg,#ec4899,#f97316)}
+.hero{background:linear-gradient(135deg,#dc2626,#f97316)}
+.games-title{margin:30px 0 12px;font-size:17px;color:#cbd5e1;letter-spacing:2px;text-transform:uppercase}
+.footer{margin-top:24px;color:#94a3b8;font-size:14px}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
-
 <body>
-
-<div class="backgroundGlow">
-
-<div class="glow"></div>
-<div class="glow"></div>
-<div class="glow"></div>
-
-</div>
-
-<div class="container">
-
-<h1>🎮 Game Portal</h1>
-
-<p>
-Choose a game to play
-</p>
-
-<a
-class="gameButton vortex"
-href="through_the_vortex.html"
->
-🌀 Through the Vortex
-</a>
-
-<a
-class="gameButton shape"
-href="shapeshift_planet.html"
->
-🌍 ShapeShift Planet
-</a>
-
-<a
-class="gameButton snake"
-href="neon_space_snake.html"
->
-🐍 Snake Bite
-</a>
-
-<a
-class="gameButton hero"
-href="SuperHeroAcademy/index.html"
->
-🦸 Super Hero Academy
-</a>
-
-<a class="gameButton" href="future-finders/index.html" style="background:linear-gradient(135deg,#ec4899,#8b5cf6,#0ea5e9,#22c55e)">🌈 Future Finders</a>
-
-<div class="footer">
-Made by Darksword89 🚀
-</div>
-
-</div>
-
+<main class="container">
+<h1>🌟 Welcome!</h1>
+<p class="intro">Explore Future Finders and play the games made by Darksword89.</p>
+<a class="featured" href="future-finders/">🌈 Open Future Finders</a>
+<div class="games-title">🎮 Play a game</div>
+<a class="vortex" href="through_the_vortex.html">🌀 Through the Vortex</a>
+<a class="shape" href="shapeshift_planet.html">🌍 ShapeShift Planet</a>
+<a class="snake" href="neon_space_snake.html">🐍 Snake Bite</a>
+<a class="hero" href="SuperHeroAcademy/index.html">🦸 Super Hero Academy</a>
+<div class="footer">Made by Darksword89 🚀</div>
+</main>
 </body>
 </html>
