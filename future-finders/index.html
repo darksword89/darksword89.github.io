@@ -96,8 +96,20 @@ footer span{display:inline-block;margin:4px 15px}
       <input id="first-name" name="first-name" autocomplete="given-name" maxlength="40" placeholder="e.g. Alex">
       <label for="idea">What's your idea?</label>
       <textarea id="idea" name="idea" maxlength="2000" required placeholder="Describe the problem you'd like to solve…"></textarea>
+      <label for="problem-type">Where is the problem happening?</label>
+      <select id="problem-type" name="problem-type" required style="width:100%;font:inherit;padding:13px 14px;border:2px solid #b7d9ff;border-radius:13px;background:#fbfdff;color:#092a78">
+        <option value="">Choose a location type</option>
+        <option value="home">At someone's home</option>
+        <option value="school">At school</option>
+        <option value="public">In a public place</option>
+        <option value="online">Online</option>
+        <option value="other">Somewhere else</option>
+      </select>
+      <label for="problem-location">Location of the problem (optional)</label>
+      <input id="problem-location" name="problem-location" maxlength="300" autocomplete="off" placeholder="e.g. a park name, building, street, or address if necessary">
+      <p class="small">📍 Only include an exact home address if it is genuinely needed to understand the problem. If you are under 18, ask a trusted adult before sharing an address. Do not include anyone else's address without their permission.</p>
       <button class="btn full" type="submit">✈ SEND MY IDEA</button>
-      <p class="small">🔒 Privacy matters. Don't include your address, school, contact details, passwords, or other sensitive information. Ideas won't be shared publicly without permission.</p>
+      <p class="small">🔒 Privacy matters. This form is not connected yet, so don't submit real addresses or other private information. Ideas won't be shared publicly without permission.</p>
       <p id="form-message" role="status" aria-live="polite"></p>
     </form>
   </div>
