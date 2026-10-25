@@ -4,7 +4,7 @@
 <div id="ff-midnight-reveal-screen" aria-hidden="true"><div class="ff-reveal-mark"><span>🌍</span>Future Finders</div></div><script>(function(){var screen=document.getElementById("ff-midnight-reveal-screen");if(!screen)return;var reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;if(reduced){screen.style.transition="none";screen.querySelector(".ff-reveal-mark").style.animation="none";screen.style.background="#030208";}window.setTimeout(function(){screen.classList.add("ff-reveal-done");},reduced?900:1900);window.setTimeout(function(){if(screen.parentNode)screen.parentNode.removeChild(screen);},reduced?1200:3200);})();</script><header><div class="nav"><a class="brand" href="index.html"><span class="planet">🌍</span><span>Future Finders<small>Big problems. Brilliant ideas. A better future.</small></span></a><nav class="navlinks" aria-label="Main navigation"><a href="index.html">Home</a><a href="about.html">About</a><a href="ideas.html">Our Ideas</a><a href="get-involved.html">Get Involved</a><a href="parents-corner.html">Parents' Corner</a></nav><a class="btn" href="get-involved.html">Join the Team</a></div></header><section class="hero"><div class="hero-inner"><div class="eyebrow">Why Future Finders exists</div><h1>Big problems. <span class="gradient">Brilliant ideas.</span></h1><p>Future Finders is a growing project built around one simple belief: people of all ages can notice problems and imagine creative ways to make life better.</p></div></section><main class="wrap"><h2>What is Future Finders?</h2><p>Future Finders aims to explore real-world problems and develop thoughtful, practical ideas that could help solve them. We want to listen to different perspectives, especially from people who experience a problem first-hand, and make room for ideas from people with different needs and abilities.</p><div class="cards"><article class="card"><h3>🔎 Find problems</h3><p>Notice everyday things that are difficult, unfair, confusing, inaccessible, or could work better.</p></article><article class="card"><h3>💡 Imagine solutions</h3><p>Think creatively, ask questions, and turn a big challenge into smaller steps we can explore.</p></article><article class="card"><h3>🌍 Make a difference</h3><p>Research what already exists, learn from others, and work towards solutions that are useful and inclusive.</p></article></div><section class="callout"><h2>Our promise</h2><p>We want to treat people’s ideas respectfully, be honest about what we can and cannot do, and protect people’s privacy. Future Finders is still developing, so we won’t claim an idea has been tested or solved until that is actually true.</p><a class="btn" href="ideas.html">Explore Our Ideas →</a></section></main><footer><span>💡 Real Ideas</span><span>👥 Young Voices</span><span>🌍 Bigger Solutions</span><span>🚀 A Brighter Future</span></footer>
 <!-- Future Finders tiny green baby dragon helper -->
 <style id="ff-baby-dragon-style">
-#ff-baby-dragon{position:fixed!important;right:18px!important;bottom:16px!important;z-index:2147483647!important;display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;align-items:flex-end;gap:9px;max-width:min(330px,calc(100vw - 24px));font-family:system-ui,sans-serif;animation:ff-dragon-travel 24s ease-in-out infinite}
+#ff-baby-dragon{position:fixed!important;right:18px!important;bottom:16px!important;z-index:2147483647!important;display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;align-items:flex-end;gap:9px;max-width:min(330px,calc(100vw - 24px));font-family:system-ui,sans-serif;animation:ff-dragon-travel 24s ease-in-out infinite;will-change:transform}#ff-baby-dragon .ff-dragon-fly,#ff-baby-dragon .ff-dragon-message,#ff-baby-dragon .ff-dragon-actions{pointer-events:auto!important}#ff-baby-dragon .ff-dragon-message{position:relative;z-index:2}#ff-baby-dragon .ff-dragon-fly{position:relative;z-index:3;touch-action:manipulation}
 #ff-baby-dragon .ff-dragon-bubble{background:#fff;border:2px solid #7be58c;border-radius:18px 18px 5px 18px;padding:10px 13px;box-shadow:0 5px 22px #08286625;color:#123b27;font-weight:800;font-size:14px;line-height:1.3;max-width:210px}
 #ff-baby-dragon .ff-dragon-actions{display:flex;gap:5px;margin-top:7px}
 #ff-baby-dragon .ff-dragon-actions button{border:1px solid #b7e9c0;background:#f0fff2;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:800;color:#164b29;cursor:pointer}
@@ -93,4 +93,52 @@
 })();
 </script>
 
-</body></html>
+<script id="ff-dragon-tap-fix">
+(function(){
+ const root=document.getElementById('ff-baby-dragon');
+ if(!root)return;
+ const speech=document.getElementById('ff-dragon-speech');
+ const say=document.getElementById('ff-dragon-say');
+ const sound=document.getElementById('ff-dragon-sound');
+ const fly=document.getElementById('ff-dragon-button');
+ const messages=["Flap flap! I’m flying around to explore!","Your ideas can make the world kinder!","Wheee! Tap me and I’ll make a little dragon sound!","You’re doing a brilliant job building Future Finders!","Tiny wings, big ideas!"];
+ let index=0, audioOn=false, audioCtx=null;
+ function chirp(){
+   if(!audioOn)return;
+   try{
+     audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+     if(audioCtx.state==='suspended')audioCtx.resume();
+     [880,1175].forEach((freq,i)=>{
+       const osc=audioCtx.createOscillator(), gain=audioCtx.createGain();
+       osc.type='sine';osc.frequency.value=freq;
+       gain.gain.setValueAtTime(0.0001,audioCtx.currentTime+i*.09);
+       gain.gain.exponentialRampToValueAtTime(.07,audioCtx.currentTime+i*.09+.02);
+       gain.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+i*.09+.12);
+       osc.connect(gain);gain.connect(audioCtx.destination);
+       osc.start(audioCtx.currentTime+i*.09);osc.stop(audioCtx.currentTime+i*.09+.13);
+     });
+   }catch(e){}
+ }
+ function saySomething(){
+   index=(index+1)%messages.length;
+   if(speech)speech.textContent=messages[index];
+   chirp();
+ }
+ if(fly){fly.addEventListener('click',saySomething);fly.addEventListener('pointerup',function(){/* keep tap interaction available while flying */});}
+ if(say)say.addEventListener('click',saySomething);
+ if(sound)sound.addEventListener('click',function(){
+   audioOn=!audioOn;sound.setAttribute('aria-pressed',String(audioOn));
+   sound.textContent=audioOn?'🔊 Sounds on':'🔊 Sounds off';
+   if(audioOn){if(speech)speech.textContent='Sounds are on! Tap me for a little chirp!';chirp();}
+ });
+ // Pause travel briefly on pointer/touch interaction so taps are easier, then resume.
+ let resumeTimer;
+ root.addEventListener('pointerdown',function(){
+   root.style.animationPlayState='paused';
+   clearTimeout(resumeTimer);
+   resumeTimer=setTimeout(function(){root.style.animationPlayState='running';},4500);
+ },{passive:true});
+ const hide=document.getElementById('ff-dragon-hide');
+ if(hide)hide.addEventListener('click',function(){root.style.display='none';});
+})();
+</script>\n</body></html>
