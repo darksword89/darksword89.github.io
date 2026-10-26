@@ -71,7 +71,7 @@ textarea.field{min-height:92px;resize:vertical}
 .choice{border:2px solid #d7e4fa;background:#fff;color:var(--ink);font-size:14px;padding:9px 11px;min-height:42px}
 .choice[aria-pressed="true"],.choice.selected{background:#e6f6ff;border-color:#1687ef;box-shadow:inset 0 0 0 1px #1687ef}
 .choice[aria-pressed="true"]{color:#0c438f}
-.big-preview{width:100%;min-height:220px;display:grid;place-items:center;overflow:hidden;border-radius:15px;background:radial-gradient(circle at 50% 28%,#fff 0,#f1f9ff 72%,#e4f5ff 100%);border:1px solid #deedff;margin-bottom:9px}.big-preview svg{display:block;width:min(100%,340px);height:auto;max-height:235px}.big-preview svg .creature-outline{stroke:#4b4e86;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}.creature-picture-note{font-size:12px;color:var(--muted);margin:0 0 10px}
+.big-preview{width:100%;min-height:220px;display:grid;place-items:center;overflow:hidden;border-radius:15px;background:radial-gradient(circle at 50% 28%,#fff 0,#f1f9ff 72%,#e4f5ff 100%);border:1px solid #deedff;margin-bottom:9px}.big-preview svg{display:block;width:min(100%,340px);height:auto;max-height:235px}.big-preview img{display:block;width:100%;max-width:360px;height:auto;max-height:450px;object-fit:contain;border-radius:12px;box-shadow:0 12px 28px #15366b20}.big-preview svg .creature-outline{stroke:#4b4e86;stroke-width:2.4;stroke-linejoin:round;stroke-linecap:round}.creature-picture-note{font-size:12px;color:var(--muted);margin:0 0 10px}
 .preview-caption{font-size:12px;color:var(--muted);margin:2px 0 12px}
 .game-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .game-actions button{flex:0 1 auto}
@@ -118,24 +118,24 @@ footer{max-width:1136px;margin:0 auto 30px;padding:19px 22px 26px}
   <div class="game-grid">
     <section class="game-card" id="build-a-creature" data-game="creature">
       <div class="game-header"><div class="game-icon" aria-hidden="true">🐾</div><div><div class="game-kicker">Game 1 · Create</div><h2>Build-a-Creature</h2></div></div>
-      <p class="intro">Design an unusual creature and invent a power that helps the world. Your picture changes as you choose its body and accessories.</p>
+      <p class="intro">Design an animal with a realistic picture, then mix and match features to make it your own.</p>
       <div class="play-area">
         <div class="big-preview" id="creature-preview" aria-live="polite"><span aria-hidden="true">🦄 ✨ 🌟</span></div>
         <div class="preview-caption" id="creature-caption">Your creature will appear here.</div>
         <label for="creature-name">Give your creature a name</label><input class="field" id="creature-name" maxlength="24" placeholder="e.g. Starwhisker">
         <label>Choose a body</label>
         <div class="choice-row" id="creature-bodies">
-          <button class="choice" type="button" data-emoji="🐱" data-label="cat" aria-pressed="false">🐱 Cat</button>
+          <button class="choice selected" type="button" data-emoji="🐱" data-label="cat" aria-pressed="true">🐱 Cat</button>
           <button class="choice" type="button" data-emoji="🦊" data-label="fox" aria-pressed="false">🦊 Fox</button>
           <button class="choice" type="button" data-emoji="🐸" data-label="frog" aria-pressed="false">🐸 Frog</button>
-          <button class="choice selected" type="button" data-emoji="🦄" data-label="unicorn" aria-pressed="true">🦄 Unicorn</button>
+          <button class="choice" type="button" data-emoji="🦄" data-label="unicorn" aria-pressed="false">🦄 Unicorn</button>
         </div>
-        <label>Choose an extra</label>
+        <label>Choose features (pick more than one!)</label>
         <div class="choice-row" id="creature-extras">
-          <button class="choice" type="button" data-emoji="🪽" data-label="wings" aria-pressed="false">🪽 Wings</button>
-          <button class="choice" type="button" data-emoji="🦖" data-label="dino tail" aria-pressed="false">🦖 Dino tail</button>
+          <button class="choice selected" type="button" data-emoji="🪽" data-label="wings" aria-pressed="true">🪽 Wings</button>
+          <button class="choice selected" type="button" data-emoji="🦖" data-label="dino tail" aria-pressed="true">🦖 Dino tail</button>
           <button class="choice selected" type="button" data-emoji="✨" data-label="sparkles" aria-pressed="true">✨ Sparkles</button>
-          <button class="choice" type="button" data-emoji="🌿" data-label="leaf crown" aria-pressed="false">🌿 Leaf crown</button>
+          <button class="choice selected" type="button" data-emoji="🌿" data-label="leaf crown" aria-pressed="true">🌿 Leaf crown</button>
         </div>
         <label for="creature-power">Its special power</label><select class="field" id="creature-power"><option>helping friends feel brave</option><option>growing magical gardens</option><option>solving tricky puzzles</option><option>making people laugh</option><option>helping animals find safe homes</option></select>
         <div class="game-actions"><button class="primary" type="button" id="make-creature">Create my creature!</button><button class="secondary" type="button" id="random-creature">Surprise me</button></div>
@@ -239,14 +239,33 @@ footer{max-width:1136px;margin:0 auto 30px;padding:19px 22px 26px}
       });
     });
   }
+  function selectMany(groupId, onPick){
+    var box=document.getElementById(groupId);
+    box.querySelectorAll('.choice').forEach(function(button){
+      button.addEventListener('click',function(){
+        var active=button.getAttribute('aria-pressed')!=='true';
+        button.setAttribute('aria-pressed',String(active));
+        button.classList.toggle('selected',active);
+        onPick && onPick(button);
+      });
+    });
+  }
   function safeText(value){return String(value).replace(/[<>]/g,'');}
   selectOne('creature-bodies',function(){markPlayed('creature');updateCreaturePicture()});
-  selectOne('creature-extras',function(){markPlayed('creature');updateCreaturePicture()});
+  selectMany('creature-extras',function(){markPlayed('creature');updateCreaturePicture()});
   function updateCreaturePicture(){
     var bodyButton=document.querySelector('#creature-bodies .choice[aria-pressed="true"]');
-    var extraButton=document.querySelector('#creature-extras .choice[aria-pressed="true"]');
-    var body=bodyButton?bodyButton.dataset.label:'unicorn';
-    var extra=extraButton?extraButton.dataset.label:'sparkles';
+    var extraButtons=Array.from(document.querySelectorAll('#creature-extras .choice[aria-pressed="true"]'));
+    var body=bodyButton?bodyButton.dataset.label:'cat';
+    var extras=extraButtons.map(function(button){return button.dataset.label});
+    var extra=extras[0]||'';
+    var preview=document.getElementById('creature-preview');
+    var caption=document.getElementById('creature-caption');
+    if(body==='cat' && extras.indexOf('wings')!==-1 && extras.indexOf('dino tail')!==-1 && extras.indexOf('leaf crown')!==-1){
+      preview.innerHTML='<img src="realistic-creature-preview.webp" alt="A realistic fantasy cat with bright blue and violet feathered wings, a spiky dinosaur tail, a leafy flower crown, and sparkling fur." width="240" height="300">';
+      caption.textContent='Your realistic winged cat is ready to explore!';
+      return;
+    }
     var looks={
       cat:{coat:'#f4bd77',dark:'#c9783c',belly:'#fff0da',nose:'#e986a9',ear:'#f3b5b9'},
       fox:{coat:'#f18b43',dark:'#bd512d',belly:'#fff2d7',nose:'#473a57',ear:'#ffd19b'},
@@ -254,9 +273,9 @@ footer{max-width:1136px;margin:0 auto 30px;padding:19px 22px 26px}
       unicorn:{coat:'#f4edff',dark:'#bb91ef',belly:'#ffffff',nose:'#e88fb8',ear:'#e7c7ff'}
     };
     var look=looks[body]||looks.unicorn;
-    var wings=extra==='wings' ? '<g class="creature-outline" fill="#b9eaff"><path d="M125 119 Q91 72 73 88 Q76 119 111 143 Q116 129 125 119Z"/><path d="M195 119 Q229 72 247 88 Q244 119 209 143 Q204 129 195 119Z"/><path d="M83 96 Q101 103 112 126 M237 96 Q219 103 208 126" fill="none" stroke="#71b8ee" stroke-width="3"/></g>' : '';
+    var wings=extras.indexOf('wings')!==-1 ? '<g class="creature-outline" fill="#b9eaff"><path d="M125 119 Q91 72 73 88 Q76 119 111 143 Q116 129 125 119Z"/><path d="M195 119 Q229 72 247 88 Q244 119 209 143 Q204 129 195 119Z"/><path d="M83 96 Q101 103 112 126 M237 96 Q219 103 208 126" fill="none" stroke="#71b8ee" stroke-width="3"/></g>' : '';
     var tail='';
-    if(extra==='dino tail'){
+    if(extras.indexOf('dino tail')!==-1){
       tail='<g class="creature-outline"><path d="M197 143 Q226 139 242 119 Q249 113 256 122 Q252 139 272 139 Q261 157 238 158 Q218 160 202 163Z" fill="'+look.coat+'"/><path d="M235 137 l-5 -13 13 5 4 -13 11 15 13 8 -13 2 -7 11 -6 -12Z" fill="#55bd83" stroke="#348d68" stroke-width="2"/></g>';
     } else if(body==='cat'){
       tail='<path class="creature-outline" d="M199 150 Q235 157 237 127 Q239 111 226 108 Q250 101 252 125 Q255 160 214 168Z" fill="'+look.coat+'"/><path d="M229 111 Q243 109 244 126" fill="none" stroke="'+look.belly+'" stroke-width="7" stroke-linecap="round"/>';
@@ -278,20 +297,23 @@ footer{max-width:1136px;margin:0 auto 30px;padding:19px 22px 26px}
     var eyes=body==='frog'
       ? '<ellipse cx="137" cy="62" rx="13" ry="15" fill="#f8fffb" stroke="#268a60" stroke-width="2.4"/><ellipse cx="183" cy="62" rx="13" ry="15" fill="#f8fffb" stroke="#268a60" stroke-width="2.4"/><circle cx="140" cy="64" r="5" fill="#25345f"/><circle cx="180" cy="64" r="5" fill="#25345f"/><circle cx="142" cy="62" r="1.7" fill="#fff"/><circle cx="182" cy="62" r="1.7" fill="#fff"/>'
       : '<ellipse cx="146" cy="90" rx="6" ry="8" fill="#fff"/><ellipse cx="174" cy="90" rx="6" ry="8" fill="#fff"/><circle cx="147" cy="91" r="3.4" fill="#26365f"/><circle cx="173" cy="91" r="3.4" fill="#26365f"/><circle cx="148" cy="89" r="1.2" fill="#fff"/><circle cx="174" cy="89" r="1.2" fill="#fff"/>';
-    var crown=extra==='leaf crown' ? '<g class="creature-outline"><path d="M128 63 Q145 38 160 57 Q178 31 193 61" fill="none" stroke="#3b9c68" stroke-width="3"/><ellipse cx="139" cy="51" rx="7" ry="14" transform="rotate(-42 139 51)" fill="#73d995"/><ellipse cx="158" cy="48" rx="7" ry="14" fill="#42bc7c"/><ellipse cx="179" cy="49" rx="7" ry="14" transform="rotate(42 179 49)" fill="#8be2a0"/></g>' : '';
+    var crown=extras.indexOf('leaf crown')!==-1 ? '<g class="creature-outline"><path d="M128 63 Q145 38 160 57 Q178 31 193 61" fill="none" stroke="#3b9c68" stroke-width="3"/><ellipse cx="139" cy="51" rx="7" ry="14" transform="rotate(-42 139 51)" fill="#73d995"/><ellipse cx="158" cy="48" rx="7" ry="14" fill="#42bc7c"/><ellipse cx="179" cy="49" rx="7" ry="14" transform="rotate(42 179 49)" fill="#8be2a0"/></g>' : '';
     var mane=body==='unicorn' ? '<path d="M190 78 Q215 92 198 116 Q214 131 191 143 Q187 125 177 119 Q196 100 190 78Z" fill="#ff91d1"/><path d="M128 78 Q112 96 125 113 Q111 127 132 140 L145 117 Q124 101 144 79Z" fill="#9d8bff"/>' : '';
     var cheeks='<ellipse cx="137" cy="103" rx="7" ry="4" fill="#ffb4c7" opacity=".8"/><ellipse cx="183" cy="103" rx="7" ry="4" fill="#ffb4c7" opacity=".8"/>';
     var mouth=body==='frog' ? '<path d="M151 107 Q160 114 169 107" fill="none" stroke="#277e55" stroke-width="2.6" stroke-linecap="round"/>' : '<path d="M152 108 Q160 116 168 108" fill="none" stroke="#6b426e" stroke-width="2.5" stroke-linecap="round"/>';
-    var sparkles=extra==='sparkles' ? '<g fill="#ffc83d" stroke="#eeaa16" stroke-width="1"><path d="M59 76 L63 88 L75 92 L63 96 L59 108 L55 96 L43 92 L55 88Z"/><path d="M260 66 L263 75 L272 78 L263 81 L260 90 L257 81 L248 78 L257 75Z"/><path d="M240 168 L243 176 L251 179 L243 182 L240 190 L237 182 L229 179 L237 176Z"/></g><circle cx="86" cy="53" r="3" fill="#e889dc"/><circle cx="230" cy="101" r="3" fill="#73c8ff"/>' : '';
-    var svg='<svg viewBox="0 0 320 230" role="img" aria-label="A cute illustrated '+body+' with '+extra+'" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="creature-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eaf7ff"/></linearGradient><linearGradient id="creature-wing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbbaff"/><stop offset="1" stop-color="#91ddff"/></linearGradient><linearGradient id="creature-belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+look.belly+'"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs><rect x="4" y="4" width="312" height="222" rx="23" fill="url(#creature-bg)"/><circle cx="49" cy="43" r="4" fill="#a7e9d0"/><circle cx="278" cy="49" r="5" fill="#d9c5ff"/><circle cx="281" cy="191" r="4" fill="#ffc6df"/><ellipse cx="160" cy="198" rx="61" ry="9" fill="#b7d2e8" opacity=".38"/>'+wings+tail+'<g class="creature-outline"><path d="M132 155 Q118 169 124 185 Q128 193 140 188 L149 165Z" fill="'+look.dark+'"/><path d="M166 165 L181 188 Q192 192 197 184 Q201 172 187 154Z" fill="'+look.dark+'"/><ellipse cx="160" cy="148" rx="44" ry="36" fill="'+look.coat+'"/><ellipse cx="160" cy="151" rx="25" ry="24" fill="url(#creature-belly)" stroke="'+look.dark+'" stroke-width="1.5"/></g>'+ears+mane+face+eyes+cheeks+'<path d="M155 99 Q160 96 165 99 Q162 104 160 104 Q157 104 155 99Z" fill="'+look.nose+'"/><path d="M160 104 L160 108" stroke="#6b426e" stroke-width="2" stroke-linecap="round"/>'+mouth+crown+sparkles+'<path d="M139 177 Q132 191 144 195 M181 177 Q189 191 177 195" fill="none" stroke="#4b4e86" stroke-width="2.4" stroke-linecap="round"/><circle cx="111" cy="150" r="3" fill="#ffc83d"/><circle cx="207" cy="129" r="3" fill="#73c8ff"/></svg>';
-    document.getElementById('creature-preview').innerHTML=svg;
-    document.getElementById('creature-caption').textContent='Your '+body+' with '+extra+' is taking shape!';
+    var sparkles=extras.indexOf('sparkles')!==-1 ? '<g fill="#ffc83d" stroke="#eeaa16" stroke-width="1"><path d="M59 76 L63 88 L75 92 L63 96 L59 108 L55 96 L43 92 L55 88Z"/><path d="M260 66 L263 75 L272 78 L263 81 L260 90 L257 81 L248 78 L257 75Z"/><path d="M240 168 L243 176 L251 179 L243 182 L240 190 L237 182 L229 179 L237 176Z"/></g><circle cx="86" cy="53" r="3" fill="#e889dc"/><circle cx="230" cy="101" r="3" fill="#73c8ff"/>' : '';
+    var svg='<svg viewBox="0 0 320 230" role="img" aria-label="A cute illustrated '+body+(extras.length?' with '+extras.join(', '):'')+'" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="creature-bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#eaf7ff"/></linearGradient><linearGradient id="creature-wing" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#dbbaff"/><stop offset="1" stop-color="#91ddff"/></linearGradient><linearGradient id="creature-belly" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+look.belly+'"/><stop offset="1" stop-color="#ffffff"/></linearGradient></defs><rect x="4" y="4" width="312" height="222" rx="23" fill="url(#creature-bg)"/><circle cx="49" cy="43" r="4" fill="#a7e9d0"/><circle cx="278" cy="49" r="5" fill="#d9c5ff"/><circle cx="281" cy="191" r="4" fill="#ffc6df"/><ellipse cx="160" cy="198" rx="61" ry="9" fill="#b7d2e8" opacity=".38"/>'+wings+tail+'<g class="creature-outline"><path d="M132 155 Q118 169 124 185 Q128 193 140 188 L149 165Z" fill="'+look.dark+'"/><path d="M166 165 L181 188 Q192 192 197 184 Q201 172 187 154Z" fill="'+look.dark+'"/><ellipse cx="160" cy="148" rx="44" ry="36" fill="'+look.coat+'"/><ellipse cx="160" cy="151" rx="25" ry="24" fill="url(#creature-belly)" stroke="'+look.dark+'" stroke-width="1.5"/></g>'+ears+mane+face+eyes+cheeks+'<path d="M155 99 Q160 96 165 99 Q162 104 160 104 Q157 104 155 99Z" fill="'+look.nose+'"/><path d="M160 104 L160 108" stroke="#6b426e" stroke-width="2" stroke-linecap="round"/>'+mouth+crown+sparkles+'<path d="M139 177 Q132 191 144 195 M181 177 Q189 191 177 195" fill="none" stroke="#4b4e86" stroke-width="2.4" stroke-linecap="round"/><circle cx="111" cy="150" r="3" fill="#ffc83d"/><circle cx="207" cy="129" r="3" fill="#73c8ff"/></svg>';
+    preview.innerHTML=svg;
+    caption.textContent='Your '+body+(extras.length?' with '+extras.join(', '):'')+' is taking shape!';
   }
   function createCreature(randomize){
     if(randomize){
       var bodies=Array.from(document.querySelectorAll('#creature-bodies .choice'));
       var extras=Array.from(document.querySelectorAll('#creature-extras .choice'));
-      [bodies,extras].forEach(function(group){group.forEach(function(b){b.setAttribute('aria-pressed','false');b.classList.remove('selected')});var pick=group[Math.floor(Math.random()*group.length)];pick.setAttribute('aria-pressed','true');pick.classList.add('selected')});
+      bodies.forEach(function(b){b.setAttribute('aria-pressed','false');b.classList.remove('selected')});
+      var bodyPick=bodies[Math.floor(Math.random()*bodies.length)];bodyPick.setAttribute('aria-pressed','true');bodyPick.classList.add('selected');
+      extras.forEach(function(b){var active=Math.random()<0.65;b.setAttribute('aria-pressed',String(active));b.classList.toggle('selected',active)});
+      if(!extras.some(function(b){return b.getAttribute('aria-pressed')==='true'})){var extraPick=extras[Math.floor(Math.random()*extras.length)];extraPick.setAttribute('aria-pressed','true');extraPick.classList.add('selected')}
       var powers=document.getElementById('creature-power');powers.selectedIndex=Math.floor(Math.random()*powers.options.length);
     }
     var body=document.querySelector('#creature-bodies .choice[aria-pressed="true"]');
