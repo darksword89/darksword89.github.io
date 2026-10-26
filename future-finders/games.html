@@ -1,38 +1,356 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Games & Confidence — Future Finders</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Play seven friendly Future Finders games that explore confidence, creativity, kindness and problem-solving.">
+<meta name="theme-color" content="#f3f9ff">
+<title>Games &amp; Confidence — Future Finders</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font:17px/1.5 system-ui,sans-serif;color:#092a78;background:linear-gradient(135deg,#e5faff,#fff,#fff0fb)}header,main{max-width:1100px;margin:auto;padding:20px}nav{display:flex;gap:16px;flex-wrap:wrap}a{color:#092a78;font-weight:700}.hero{text-align:center;padding:25px 10px}.hero h1{font-size:clamp(34px,6vw,60px);margin:8px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:16px}.game{background:#fff;border:2px solid #d8e8ff;border-radius:22px;padding:18px;box-shadow:0 8px 22px #092a7810}.game h2{margin-top:0}.choices{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.choices button,button{font:inherit;font-weight:700;cursor:pointer;border:2px solid #b7d9ff;border-radius:12px;background:#fff;color:#092a78;padding:9px 12px;min-height:42px}.primary{background:linear-gradient(90deg,#e91ec4,#6439e9,#168bff);color:white;border:0}.result{min-height:26px;font-weight:700;color:#17663a;margin-top:10px}input,select,textarea{font:inherit;padding:10px;width:100%;border:2px solid #b7d9ff;border-radius:10px;margin:5px 0}.small{font-size:14px;color:#395484}.preview{font-size:35px}footer{margin-top:20px;background:#fff;padding:18px;border-radius:18px}
-</style></head><body>
-<header><nav><a href="index.html">🏠 Home</a><a href="about.html">About</a><a href="ideas.html">Our Ideas</a><a href="games.html">🎮 Games</a><a href="get-involved.html">Get Involved</a><a href="parents-corner.html">Parents' Corner</a></nav></header>
-<main><section class="hero"><div>🌈 PLAY • EXPLORE • GROW</div><h1>Games & Confidence</h1><p>Seven new games to practise creativity, courage, kindness and clever thinking.</p><strong>Dragon-free games — just the activities!</strong></section>
-<div class="grid">
-<section class="game"><h2>🐾 1. Build-a-Creature</h2><p>Make a magical creature and choose its superpower.</p><label>Name your creature</label><input id="creatureName" maxlength="24" placeholder="Starwhisker"><div class="choices" id="bodyChoices"><button type="button">🐱 Cat</button><button type="button">🦊 Fox</button><button type="button">🐸 Frog</button><button type="button">🦄 Unicorn</button></div><label>Superpower</label><select id="power"><option>Helping friends feel brave</option><option>Growing magical gardens</option><option>Solving puzzles</option><option>Making people laugh</option></select><button class="primary" id="make" type="button">Create creature</button><div class="result" id="creatureResult" aria-live="polite">Your creature is waiting!</div></section>
-<section class="game"><h2>💪 2. Confidence Quest</h2><p>Choose a little mission. You can skip any challenge.</p><h3 id="quest">Name one thing you enjoy learning about.</h3><button class="primary" id="nextQuest" type="button">Next mission</button><div class="result" id="questResult" aria-live="polite"></div></section>
-<section class="game"><h2>🌟 3. Superpower Discovery</h2><p>Pick any strengths that sound like you.</p><div class="choices" id="strengths"><button type="button">🎨 Creative</button><button type="button">💚 Kind</button><button type="button">🔎 Curious</button><button type="button">🤝 Team player</button><button type="button">🧗 Keep trying</button><button type="button">👂 Good listener</button></div><button class="primary" id="reveal" type="button">Reveal my strengths</button><div class="result" id="strengthResult" aria-live="polite"></div></section>
-<section class="game"><h2>🧠 4. Problem-Solver Island</h2><p id="puzzle">A big project feels tricky. What is a useful first step?</p><div class="choices" id="answers"><button type="button" data-good="yes">Break it into small steps</button><button type="button">Give up before starting</button><button type="button">Do everything at once</button></div><button id="anotherPuzzle" type="button">Another puzzle</button><div class="result" id="puzzleResult" aria-live="polite"></div></section>
-<section class="game"><h2>💚 5. Kindness Kingdom</h2><p id="kindQuestion">Someone is alone while others play. What could you do?</p><div class="choices" id="kindChoices"><button type="button" data-good="yes">Invite them to join, if they want</button><button type="button">Ask if they'd like company</button><button type="button">Decide for them</button></div><button id="nextKind" type="button">Next mission</button><div class="result" id="kindResult" aria-live="polite"></div></section>
-<section class="game"><h2>🎨 6. Imagination Station</h2><p id="ingredients">A floating library + friendly robots + a rainy day.</p><button class="primary" id="newIdea" type="button">Mix new ingredients</button><textarea id="invention" rows="3" maxlength="300" placeholder="My invention would…"></textarea><button id="celebrate" type="button">Celebrate my idea</button><div class="result" id="ideaResult" aria-live="polite"></div></section>
-<section class="game"><h2>🚀 7. Believe-in-Yourself Challenge</h2><p id="challenge">Notice one thing you worked hard at today.</p><button class="primary" id="tried" type="button">I gave it a try!</button><button id="newChallenge" type="button">Another challenge</button><div class="result" id="challengeResult" aria-live="polite"></div></section>
-</div><footer><strong>💛 Remember:</strong> You do not need to win or be perfect. Take a break whenever you want. If a real-life problem feels unsafe or too big to handle alone, talk to a trusted adult.</footer></main>
+:root{--ink:#102b70;--blue:#1879ed;--purple:#7337e8;--pink:#e923b6;--green:#1b8b55;--gold:#d78b00;--line:#dbe7ff;--muted:#4d628d;--soft:#f6faff}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:radial-gradient(ellipse at 4% 6%,#d8f8ff 0,transparent 32%),radial-gradient(ellipse at 96% 18%,#ffe7f8 0,transparent 30%),linear-gradient(145deg,#f8fcff,#fff 50%,#fffaf0);min-height:100vh}
+a{color:inherit}
+button,input,select,textarea{font:inherit}
+button{touch-action:manipulation}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #1295ff;outline-offset:3px}
+.site-header{position:sticky;top:0;z-index:10;background:#ffffffec;backdrop-filter:blur(12px);border-bottom:1px solid #e4ebfb}
+.nav{max-width:1180px;margin:auto;padding:12px 22px;display:flex;align-items:center;gap:16px}
+.brand{display:flex;align-items:center;gap:11px;text-decoration:none;font-weight:950;font-size:23px;white-space:nowrap}
+.brand-orb{width:43px;height:43px;border-radius:50%;display:grid;place-items:center;font-size:25px;background:conic-gradient(#ff3fcb,#ffd62c,#3be77a,#17c8ff,#743cff,#ff3fcb);box-shadow:0 0 0 4px white,0 0 14px #bfd8ff}
+.navlinks{display:flex;align-items:center;justify-content:flex-end;gap:15px;margin-left:auto;flex-wrap:wrap}
+.navlinks a{font-size:13px;font-weight:800;text-decoration:none}
+.navlinks a:hover{text-decoration:underline;text-decoration-color:var(--pink);text-decoration-thickness:3px}
+.hero{max-width:1180px;margin:auto;padding:38px 22px 22px}
+.hero-panel{position:relative;overflow:hidden;border:1px solid #fff;border-radius:30px;padding:clamp(24px,5vw,48px);background:linear-gradient(115deg,#dcf8ff 0%,#fff 44%,#ffeffb 75%,#fff4cc 100%);box-shadow:0 18px 46px #1b4c8c12}
+.hero-panel:after{content:"✦  ✧  ✦";position:absolute;right:25px;top:20px;font-size:clamp(25px,5vw,50px);letter-spacing:12px;color:#b38aff;opacity:.65;transform:rotate(8deg);pointer-events:none}
+.eyebrow{font-size:12px;letter-spacing:.15em;font-weight:950;color:var(--purple);text-transform:uppercase}
+.hero h1{max-width:800px;font-size:clamp(38px,7vw,70px);line-height:1.03;letter-spacing:-2px;margin:10px 0 14px}
+.gradient-text{background:linear-gradient(90deg,#ee20b8,#7437e9,#0784eb,#1a9e5f);background-clip:text;color:transparent}
+.hero p{max-width:770px;font-size:clamp(16px,2vw,20px);margin:0;color:#344f83}
+.hero-tools{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:22px}
+.primary,.secondary,.choice{border:0;border-radius:13px;min-height:44px;padding:10px 15px;font-weight:850;cursor:pointer;transition:transform .15s,box-shadow .15s,background .15s}
+.primary{color:#fff;background:linear-gradient(100deg,#e923b6,#7738e7,#1687ef);box-shadow:0 5px 0 #182d6a16}
+.secondary{color:var(--ink);background:#edf5ff;border:1px solid #d6e5ff}
+.primary:hover,.secondary:hover,.choice:hover{transform:translateY(-1px)}
+.progress-panel{max-width:1180px;margin:0 auto 20px;padding:0 22px}
+.progress-inner{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:14px 18px;box-shadow:0 7px 22px #15366b08}
+.progress-title{font-size:13px;font-weight:900}
+.progress-track{height:10px;background:#eaf0ff;border-radius:999px;overflow:hidden}
+.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#ef24bc,#7738eb,#1687ef,#1cb86d);border-radius:999px;transition:width .3s ease}
+.progress-number{font-size:13px;font-weight:900;white-space:nowrap}
+main{max-width:1180px;margin:auto;padding:0 22px 48px}
+.section-heading{display:flex;align-items:end;justify-content:space-between;gap:15px;margin:24px 0 16px}
+.section-heading h2{font-size:clamp(25px,4vw,36px);letter-spacing:-.7px;line-height:1.1;margin:0 0 5px}
+.section-heading p{margin:0;color:var(--muted)}
+.game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.game-card{min-width:0;background:#fff;border:2px solid var(--line);border-radius:24px;padding:21px;box-shadow:0 11px 30px #142e6c0b;position:relative}
+.game-card:nth-child(2){border-color:#e5d8ff}
+.game-card:nth-child(3){border-color:#d1efdf}
+.game-card:nth-child(4){border-color:#ffe7b3}
+.game-card:nth-child(5){border-color:#ffdaee}
+.game-card:nth-child(6){border-color:#cbe9ff}
+.game-card:nth-child(7){border-color:#d9d2ff}
+.game-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px}
+.game-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:15px;font-size:27px;flex:0 0 auto;background:#eaf8ff}
+.game-card:nth-child(2) .game-icon{background:#f3ecff}
+.game-card:nth-child(3) .game-icon{background:#e9fff0}
+.game-card:nth-child(4) .game-icon{background:#fff5d8}
+.game-card:nth-child(5) .game-icon{background:#fff0f8}
+.game-card:nth-child(6) .game-icon{background:#eaf7ff}
+.game-card:nth-child(7) .game-icon{background:#f0edff}
+.game-kicker{font-size:11px;font-weight:950;letter-spacing:.09em;text-transform:uppercase;color:var(--purple)}
+.game-card h2{font-size:clamp(21px,3vw,27px);line-height:1.18;margin:2px 0 4px;letter-spacing:-.4px}
+.game-card .intro{margin:0 0 15px;color:var(--muted);font-size:14px}
+.play-area{border:1px solid #e6edf9;background:linear-gradient(135deg,#f8fbff,#fff);border-radius:17px;padding:15px}
+.play-area label{display:block;font-weight:850;font-size:13px;margin:10px 0 5px}
+.field{display:block;width:100%;min-height:44px;padding:10px 12px;border:2px solid #cbdcff;border-radius:11px;background:white;color:var(--ink);margin:6px 0 10px}
+textarea.field{min-height:92px;resize:vertical}
+.choice-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 13px}
+.choice{border:2px solid #d7e4fa;background:#fff;color:var(--ink);font-size:14px;padding:9px 11px;min-height:42px}
+.choice[aria-pressed="true"],.choice.selected{background:#e6f6ff;border-color:#1687ef;box-shadow:inset 0 0 0 1px #1687ef}
+.choice[aria-pressed="true"]{color:#0c438f}
+.big-preview{font-size:36px;line-height:1.3;min-height:54px;display:flex;align-items:center;gap:10px}
+.preview-caption{font-size:12px;color:var(--muted);margin:2px 0 12px}
+.game-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.game-actions button{flex:0 1 auto}
+.status{font-weight:750;color:#17663e;margin:12px 0 0;min-height:24px;font-size:14px}
+.status:empty{display:none}
+.counter{font-size:12px;font-weight:950;color:var(--purple);margin-bottom:5px;letter-spacing:.04em}
+.question{font-size:18px;line-height:1.3;margin:5px 0 12px}
+.small-note{font-size:12px;color:#53678d;margin:9px 0 0}
+footer{max-width:1136px;margin:0 auto 30px;padding:19px 22px 26px}
+.footer-panel{padding:20px;border:1px solid #dce8ff;background:linear-gradient(100deg,#e8f9ff,#fff0fa,#fff8dc);border-radius:20px}
+.footer-panel h2{margin:0 0 5px;font-size:20px}.footer-panel p{margin:0;color:#344f83;font-size:14px}
+.back-link{display:inline-block;margin-top:15px;font-weight:850}
+@media(max-width:800px){.nav{flex-wrap:wrap}.navlinks{order:3;width:100%;justify-content:center;margin:0}.game-grid{grid-template-columns:1fr}.hero{padding-top:24px}.hero-panel:after{opacity:.3}.progress-inner{grid-template-columns:1fr auto;gap:10px}.progress-track{grid-column:1/-1;grid-row:2}}
+@media(max-width:480px){.nav{padding:10px 14px}.brand{font-size:20px}.brand-orb{height:38px;width:38px;font-size:23px}.navlinks{gap:11px}.hero,main{padding-left:14px;padding-right:14px}.hero-panel{padding:24px 18px}.hero h1{letter-spacing:-1.2px}.progress-panel{padding:0 14px}.game-card{padding:15px}.play-area{padding:12px}.section-heading{display:block}.progress-number{font-size:12px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav">
+    <a class="brand" href="index.html"><span class="brand-orb" aria-hidden="true">🌍</span><span>Future Finders</span></a>
+    <nav class="navlinks" aria-label="Main navigation">
+      <a href="index.html">Home</a><a href="about.html">About</a><a href="ideas.html">Our Ideas</a><a href="games.html" aria-current="page">🎮 Games</a><a href="get-involved.html">Get Involved</a><a href="parents-corner.html">Parents' Corner</a>
+    </nav>
+  </div>
+</header>
+<section class="hero">
+  <div class="hero-panel">
+    <div class="eyebrow">Play · Explore · Grow</div>
+    <h1>Games <span class="gradient-text">&amp; Confidence</span></h1>
+    <p>Seven playful mini-adventures to help you explore your creativity, practise courage, solve problems and notice your strengths. No leaderboards and no pressure: play at your own pace.</p>
+    <div class="hero-tools"><a class="primary" href="#all-games" style="text-decoration:none">Choose a game ↓</a><span class="small-note">🌈 All seven games are dragon-free.</span></div>
+  </div>
+</section>
+<section class="progress-panel" aria-label="Your game progress">
+  <div class="progress-inner">
+    <div class="progress-title">Your adventure progress</div>
+    <div class="progress-track" role="progressbar" aria-label="Games explored" aria-valuemin="0" aria-valuemax="7" aria-valuenow="0" id="overall-progress"><div class="progress-fill" id="progress-fill"></div></div>
+    <div class="progress-number" id="progress-number">0 of 7 explored</div>
+  </div>
+</section>
+<main id="all-games">
+  <div class="section-heading"><div><h2>Pick your next adventure</h2><p>Try any game, skip any activity, and come back whenever you like.</p></div></div>
+  <div class="game-grid">
+    <section class="game-card" id="build-a-creature" data-game="creature">
+      <div class="game-header"><div class="game-icon" aria-hidden="true">🐾</div><div><div class="game-kicker">Game 1 · Create</div><h2>Build-a-Creature</h2></div></div>
+      <p class="intro">Design an unusual creature and invent a power that helps the world.</p>
+      <div class="play-area">
+        <div class="big-preview" id="creature-preview" aria-live="polite"><span>🦄</span><span>✨</span><span>🌟</span></div>
+        <div class="preview-caption" id="creature-caption">Your creature will appear here.</div>
+        <label for="creature-name">Give your creature a name</label><input class="field" id="creature-name" maxlength="24" placeholder="e.g. Starwhisker">
+        <label>Choose a body</label>
+        <div class="choice-row" id="creature-bodies">
+          <button class="choice" type="button" data-emoji="🐱" data-label="cat" aria-pressed="false">🐱 Cat</button>
+          <button class="choice" type="button" data-emoji="🦊" data-label="fox" aria-pressed="false">🦊 Fox</button>
+          <button class="choice" type="button" data-emoji="🐸" data-label="frog" aria-pressed="false">🐸 Frog</button>
+          <button class="choice selected" type="button" data-emoji="🦄" data-label="unicorn" aria-pressed="true">🦄 Unicorn</button>
+        </div>
+        <label>Choose an extra</label>
+        <div class="choice-row" id="creature-extras">
+          <button class="choice" type="button" data-emoji="🪽" data-label="wings" aria-pressed="false">🪽 Wings</button>
+          <button class="choice" type="button" data-emoji="🦖" data-label="dino tail" aria-pressed="false">🦖 Dino tail</button>
+          <button class="choice selected" type="button" data-emoji="✨" data-label="sparkles" aria-pressed="true">✨ Sparkles</button>
+          <button class="choice" type="button" data-emoji="🌿" data-label="leaf crown" aria-pressed="false">🌿 Leaf crown</button>
+        </div>
+        <label for="creature-power">Its special power</label><select class="field" id="creature-power"><option>helping friends feel brave</option><option>growing magical gardens</option><option>solving tricky puzzles</option><option>making people laugh</option><option>helping animals find safe homes</option></select>
+        <div class="game-actions"><button class="primary" type="button" id="make-creature">Create my creature!</button><button class="secondary" type="button" id="random-creature">Surprise me</button></div>
+        <p class="status" id="creature-result" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="game-card" id="confidence-quest" data-game="confidence">
+      <div class="game-header"><div class="game-icon" aria-hidden="true">💪</div><div><div class="game-kicker">Game 2 · Practise</div><h2>Confidence Quest</h2></div></div>
+      <p class="intro">Take one tiny step at a time. Thinking quietly counts, and you can skip anything that doesn't feel right.</p>
+      <div class="play-area">
+        <div class="counter" id="quest-count">MISSION 1 OF 6</div><h3 class="question" id="quest-prompt">Name one thing you enjoy learning about.</h3>
+        <p class="small-note">You don't need to tell anyone your answer. This is your own adventure.</p>
+        <div class="game-actions"><button class="primary" type="button" id="quest-tried">I gave it a try</button><button class="secondary" type="button" id="quest-next">Next mission →</button></div>
+        <p class="status" id="quest-result" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="game-card" id="superpower-discovery" data-game="strengths">
+      <div class="game-header"><div class="game-icon" aria-hidden="true">🌟</div><div><div class="game-kicker">Game 3 · Discover</div><h2>Superpower Discovery</h2></div></div>
+      <p class="intro">Choose as many strengths as feel like you. You can choose none, some or all of them.</p>
+      <div class="play-area">
+        <div class="choice-row" id="strength-choices">
+          <button class="choice" type="button" aria-pressed="false">🎨 Creative</button><button class="choice" type="button" aria-pressed="false">💚 Kind</button>
+          <button class="choice" type="button" aria-pressed="false">🔎 Curious</button><button class="choice" type="button" aria-pressed="false">🤝 Team player</button>
+          <button class="choice" type="button" aria-pressed="false">🧗 Keep trying</button><button class="choice" type="button" aria-pressed="false">👂 Good listener</button>
+          <button class="choice" type="button" aria-pressed="false">🧩 Good at puzzles</button><button class="choice" type="button" aria-pressed="false">🌈 See things differently</button>
+        </div>
+        <div class="game-actions"><button class="primary" type="button" id="reveal-strengths">Reveal my strengths</button><button class="secondary" type="button" id="reset-strengths">Start again</button></div>
+        <p class="status" id="strength-result" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="game-card" id="problem-solver" data-game="problem">
+      <div class="game-header"><div class="game-icon" aria-hidden="true">🧠</div><div><div class="game-kicker">Game 4 · Think</div><h2>Problem-Solver Island</h2></div></div>
+      <p class="intro">Try different ways of looking at a problem. Learning is part of the puzzle.</p>
+      <div class="play-area">
+        <div class="counter" id="puzzle-count">PUZZLE 1 OF 4</div><h3 class="question" id="puzzle-question">A big project feels tricky. What is a helpful first step?</h3>
+        <div class="choice-row" id="puzzle-answers"></div>
+        <p class="status" id="puzzle-result" aria-live="polite"></p>
+        <div class="game-actions"><button class="secondary" type="button" id="puzzle-next">Next puzzle →</button></div>
+      </div>
+    </section>
+
+    <section class="game-card" id="kindness-kingdom" data-game="kindness">
+      <div class="game-header"><div class="game-icon" aria-hidden="true">💚</div><div><div class="game-kicker">Game 5 · Connect</div><h2>Kindness Kingdom</h2></div></div>
+      <p class="intro">Explore kind ways to include people while still respecting what they want.</p>
+      <div class="play-area">
+        <div class="counter" id="kind-count">SCENARIO 1 OF 4</div><h3 class="question" id="kind-question">Someone is standing alone while others play. What could you do?</h3>
+        <div class="choice-row" id="kind-answers"></div>
+        <p class="status" id="kind-result" aria-live="polite"></p>
+        <div class="game-actions"><button class="secondary" type="button" id="kind-next">Next scenario →</button></div>
+      </div>
+    </section>
+
+    <section class="game-card" id="imagination-station" data-game="imagination">
+      <div class="game-header"><div class="game-icon" aria-hidden="true">🎨</div><div><div class="game-kicker">Game 6 · Invent</div><h2>Imagination Station</h2></div></div>
+      <p class="intro">Combine unexpected ingredients and dream up a new invention. There are no wrong ideas here.</p>
+      <div class="play-area">
+        <div class="counter">YOUR RANDOM INGREDIENTS</div><h3 class="question" id="imagination-prompt">A floating library + friendly robots + a rainy day</h3>
+        <button class="secondary" type="button" id="new-imagination">Mix new ingredients 🎲</button>
+        <label for="invention-idea">What would you invent?</label><textarea class="field" id="invention-idea" rows="3" maxlength="300" placeholder="My invention would..."></textarea>
+        <div class="game-actions"><button class="primary" type="button" id="celebrate-invention">Celebrate my idea</button><button class="secondary" type="button" id="clear-invention">Clear</button></div>
+        <p class="status" id="invention-result" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <section class="game-card" id="believe-challenge" data-game="believe">
+      <div class="game-header"><div class="game-icon" aria-hidden="true">🚀</div><div><div class="game-kicker">Game 7 · Grow</div><h2>Believe-in-Yourself Challenge</h2></div></div>
+      <p class="intro">Try a gentle challenge that fits your day. You can do it now, later, or pick another one.</p>
+      <div class="play-area">
+        <div class="counter" id="challenge-count">CHALLENGE 1 OF 6</div><h3 class="question" id="challenge-prompt">Notice one thing you worked hard at today.</h3>
+        <div class="game-actions"><button class="primary" type="button" id="challenge-tried">I gave it a try!</button><button class="secondary" type="button" id="challenge-next">Another challenge</button></div>
+        <p class="status" id="challenge-result" aria-live="polite"></p>
+      </div>
+    </section>
+  </div>
+  <a class="back-link" href="index.html">← Back to the Future Finders homepage</a>
+</main>
+<footer><div class="footer-panel"><h2>💛 You're allowed to learn at your own pace.</h2><p>You do not need to win, be perfect, or finish every activity. Take a break whenever you want. If a real-life problem feels unsafe or too big to handle alone, tell a trusted adult.</p></div></footer>
 <script>
 (function(){
-function pick(container){container.querySelectorAll('button').forEach(function(b){b.addEventListener('click',function(){container.querySelectorAll('button').forEach(function(x){x.style.background='#fff';x.setAttribute('aria-pressed','false')});b.style.background='#dff7ff';b.setAttribute('aria-pressed','true');container.dataset.choice=b.textContent})})}
-var bodies=document.getElementById('bodyChoices');pick(bodies);
-document.getElementById('make').onclick=function(){var b=bodies.dataset.choice||'🦄 Unicorn';var n=document.getElementById('creatureName').value.trim()||'Mystery Friend';document.getElementById('creatureResult').textContent='✨ Meet '+n+' the '+b+'! Superpower: '+document.getElementById('power').value+'. Every creature is special!'};
-var quests=['Name one thing you enjoy learning about.','Think of a time you kept trying.','Choose one small thing you would like to practise.','Think of someone who supports you.','Give yourself credit for something you tried.'],qi=0;
-document.getElementById('nextQuest').onclick=function(){qi=(qi+1)%quests.length;document.getElementById('quest').textContent=quests[qi];document.getElementById('questResult').textContent='Every small step counts!'};
-var sc=document.getElementById('strengths');pick(sc);
-document.getElementById('reveal').onclick=function(){document.getElementById('strengthResult').textContent=sc.dataset.choice?'Your chosen strength: '+sc.dataset.choice+'. You can grow new strengths with practice!':'Everyone has strengths. Choose one or more that feel like you!'};
-function answers(id,result){var box=document.getElementById(id);box.querySelectorAll('button').forEach(function(b){b.onclick=function(){document.getElementById(result).textContent=b.dataset.good?'Good thinking! Small steps, kindness and asking what people need can help.':'Try thinking about what is helpful, kind and safe. You can choose again.'}})}
-answers('answers','puzzleResult');var puzzles=[['A big project feels tricky. What is a useful first step?','Break it into small steps'],['Your first plan does not work. What next?','Try a different approach or ask for help'],['You are stuck on a question. What helps?','Ask for a hint']];var pi=0;
-document.getElementById('anotherPuzzle').onclick=function(){pi=(pi+1)%puzzles.length;document.getElementById('puzzle').textContent=puzzles[pi][0];var box=document.getElementById('answers');box.innerHTML='';[puzzles[pi][1],'Give up immediately','Blame yourself'].forEach(function(t,i){var b=document.createElement('button');b.type='button';b.textContent=t;if(i===0)b.dataset.good='yes';box.appendChild(b)});answers('answers','puzzleResult');document.getElementById('puzzleResult').textContent=''};
-answers('kindChoices','kindResult');var kinds=[['A friend makes a mistake. What is kind?','Be patient and offer help if they want it'],['Two people want different games. What could help?','Listen and take turns choosing'],['Someone seems upset. What can you do?','Ask kindly if they want help']];var ki=0;
-document.getElementById('nextKind').onclick=function(){ki=(ki+1)%kinds.length;document.getElementById('kindQuestion').textContent=kinds[ki][0];var box=document.getElementById('kindChoices');box.innerHTML='';[kinds[ki][1],'Make their choice for them','Ignore what they say'].forEach(function(t,i){var b=document.createElement('button');b.type='button';b.textContent=t;if(i===0)b.dataset.good='yes';box.appendChild(b)});answers('kindChoices','kindResult');document.getElementById('kindResult').textContent=''};
-var combos=['A garden on the moon + recycled boxes + music','A school bus that becomes a treehouse + solar power','A talking map + secret paths + helping neighbours','A museum of tiny inventions + glowing paint'],ci=0;
-document.getElementById('newIdea').onclick=function(){ci=(ci+1)%combos.length;document.getElementById('ingredients').textContent=combos[ci];document.getElementById('ideaResult').textContent=''};
-document.getElementById('celebrate').onclick=function(){var v=document.getElementById('invention').value.trim();document.getElementById('ideaResult').textContent=v?'Brilliant imagining! You thought of: “'+v+'” Keep exploring!':'Write a sentence about your invention first!'};
-var challenges=['Notice one thing you worked hard at today.','Ask a helpful question about something new.','Take one small step towards learning a skill.','Tell yourself: “I can learn a little at a time.”','Notice a time you were kind or helpful.'],di=0;
-document.getElementById('tried').onclick=function(){document.getElementById('challengeResult').textContent='Well done for trying! Effort and learning matter.'};
-document.getElementById('newChallenge').onclick=function(){di=(di+1)%challenges.length;document.getElementById('challenge').textContent=challenges[di];document.getElementById('challengeResult').textContent=''};
+  'use strict';
+  var explored = new Set();
+  function markPlayed(id){
+    if(explored.has(id)) return;
+    explored.add(id);
+    var amount=explored.size;
+    document.getElementById('progress-fill').style.width=(amount/7*100)+'%';
+    document.getElementById('overall-progress').setAttribute('aria-valuenow',String(amount));
+    document.getElementById('progress-number').textContent=amount+' of 7 explored';
+    document.querySelector('[data-game="'+id+'"] .game-kicker').textContent=document.querySelector('[data-game="'+id+'"] .game-kicker').textContent.replace(' · ', ' ✓ ');
+  }
+  function selectOne(groupId, onPick){
+    var box=document.getElementById(groupId);
+    box.querySelectorAll('.choice').forEach(function(button){
+      button.addEventListener('click',function(){
+        box.querySelectorAll('.choice').forEach(function(other){other.setAttribute('aria-pressed','false');other.classList.remove('selected')});
+        button.setAttribute('aria-pressed','true');button.classList.add('selected');
+        onPick && onPick(button);
+      });
+    });
+  }
+  function safeText(value){return String(value).replace(/[<>]/g,'');}
+  selectOne('creature-bodies',function(){markPlayed('creature')});
+  selectOne('creature-extras',function(){markPlayed('creature')});
+  function createCreature(randomize){
+    if(randomize){
+      var bodies=Array.from(document.querySelectorAll('#creature-bodies .choice'));
+      var extras=Array.from(document.querySelectorAll('#creature-extras .choice'));
+      [bodies,extras].forEach(function(group){group.forEach(function(b){b.setAttribute('aria-pressed','false');b.classList.remove('selected')});var pick=group[Math.floor(Math.random()*group.length)];pick.setAttribute('aria-pressed','true');pick.classList.add('selected')});
+      var powers=document.getElementById('creature-power');powers.selectedIndex=Math.floor(Math.random()*powers.options.length);
+    }
+    var body=document.querySelector('#creature-bodies .choice[aria-pressed="true"]');
+    var extra=document.querySelector('#creature-extras .choice[aria-pressed="true"]');
+    var name=safeText(document.getElementById('creature-name').value.trim())||'Mystery Friend';
+    var power=document.getElementById('creature-power').value;
+    var preview=document.getElementById('creature-preview');
+    preview.textContent=(body?body.dataset.emoji:'🦄')+' '+(extra?extra.dataset.emoji:'✨')+' 🌟';
+    document.getElementById('creature-caption').textContent=name+' is ready for an adventure!';
+    document.getElementById('creature-result').textContent='Meet '+name+'! Their special power is '+power+'. Your imagination made this creature unique.';
+    markPlayed('creature');
+  }
+  document.getElementById('make-creature').addEventListener('click',function(){createCreature(false)});
+  document.getElementById('random-creature').addEventListener('click',function(){createCreature(true)});
+  document.getElementById('creature-name').addEventListener('input',function(){if(this.value.trim())markPlayed('creature')});
+
+  var quests=[
+    'Name one thing you enjoy learning about.',
+    'Think of a time you kept trying, even when something felt tricky.',
+    'Choose one small thing you would like to practise.',
+    'Think of someone who helps you feel supported.',
+    'Remember a moment you were proud of an effort you made.',
+    'Choose one kind thing you can say to yourself today.'
+  ], qi=0;
+  function renderQuest(){document.getElementById('quest-count').textContent='MISSION '+(qi+1)+' OF '+quests.length;document.getElementById('quest-prompt').textContent=quests[qi];document.getElementById('quest-result').textContent=''}
+  renderQuest();
+  document.getElementById('quest-tried').addEventListener('click',function(){markPlayed('confidence');document.getElementById('quest-result').textContent='Nice work for giving it a go. Confidence can grow one small step at a time.'});
+  document.getElementById('quest-next').addEventListener('click',function(){markPlayed('confidence');qi=(qi+1)%quests.length;renderQuest()});
+
+  var strengthBox=document.getElementById('strength-choices');
+  strengthBox.querySelectorAll('.choice').forEach(function(button){button.addEventListener('click',function(){var active=button.getAttribute('aria-pressed')!=='true';button.setAttribute('aria-pressed',String(active));button.classList.toggle('selected',active);markPlayed('strengths')})});
+  document.getElementById('reveal-strengths').addEventListener('click',function(){
+    var chosen=Array.from(strengthBox.querySelectorAll('.choice[aria-pressed="true"]')).map(function(button){return button.textContent.trim()});
+    document.getElementById('strength-result').textContent=chosen.length?'Your strengths today: '+chosen.join(', ')+'. Strengths can grow, change, and show up in different ways.':'Everyone has strengths. Pick any that feel like you, or come back later.';
+    markPlayed('strengths');
+  });
+  document.getElementById('reset-strengths').addEventListener('click',function(){strengthBox.querySelectorAll('.choice').forEach(function(b){b.setAttribute('aria-pressed','false');b.classList.remove('selected')});document.getElementById('strength-result').textContent='Fresh start! Which strengths would you like to notice?';markPlayed('strengths')});
+
+  var puzzles=[
+    {q:'A big project feels tricky. What is a helpful first step?',a:[['Break it into small steps',true,'Good plan! A big task often feels easier when you make it smaller.'],['Do everything at once',false,'That can feel overwhelming. Try making the task smaller first.'],['Give up before starting',false,'You do not have to solve everything now. Start with one small step.']]},
+    {q:'Your first plan does not work. What could you do next?',a:[['Learn what happened and try a different way',true,'Exactly! Changing a plan is part of problem-solving.'],['Decide you can never do it',false,'One attempt does not define you. You can try a different approach.'],['Blame yourself',false,'Mistakes are information, not a verdict. Look for what you can learn.']]},
+    {q:'You are stuck on a tricky question. What is useful?',a:[['Ask for a hint or help',true,'Good thinking! Asking for help is a useful skill.'],['Rush without reading it',false,'Pause and read it carefully. A hint can help you get unstuck.'],['Hide the problem forever',false,'You can take a break, then return or ask someone for help.']]},
+    {q:'Two possible solutions both have problems. What next?',a:[['Compare what matters and test a small safe step',true,'Brilliant. Comparing options and trying a small safe test can teach you a lot.'],['Choose without thinking',false,'Take a moment to compare what each option might change.'],['Assume no solution exists',false,'There may be another route. Ask questions or combine parts of your ideas.']]}
+  ], pi=0;
+  function renderPuzzle(){
+    var puzzle=puzzles[pi], box=document.getElementById('puzzle-answers');
+    document.getElementById('puzzle-count').textContent='PUZZLE '+(pi+1)+' OF '+puzzles.length;
+    document.getElementById('puzzle-question').textContent=puzzle.q;
+    document.getElementById('puzzle-result').textContent='';
+    box.replaceChildren();
+    puzzle.a.forEach(function(answer){
+      var button=document.createElement('button');button.type='button';button.className='choice';button.textContent=answer[0];
+      button.addEventListener('click',function(){markPlayed('problem');document.getElementById('puzzle-result').textContent=answer[2];box.querySelectorAll('button').forEach(function(b){b.disabled=true});});
+      box.appendChild(button);
+    });
+  }
+  renderPuzzle();
+  document.getElementById('puzzle-next').addEventListener('click',function(){pi=(pi+1)%puzzles.length;markPlayed('problem');renderPuzzle()});
+
+  var kinds=[
+    {q:'Someone is standing alone while others play. What could you do?',a:[['Invite them to join, if they want',true,'That is welcoming, and giving them a choice matters.'],['Ask if they would like company',true,'Kind idea. Asking lets them decide what feels comfortable.'],['Assume you know how they feel',false,'People feel different things. A gentle question is better than guessing.']]},
+    {q:'A friend makes a mistake. What is a kind response?',a:[['Be patient and offer help if they want it',true,'Yes. Kindness means supporting someone without taking over.'],['Make fun of the mistake',false,'Mistakes happen to everyone. A kind response helps people feel safe to learn.'],['Take over and do it for them',false,'You can offer help, then let them choose what they need.']]},
+    {q:'Two people want to choose different games. What might help?',a:[['Listen to both ideas and take turns choosing',true,'Great teamwork. Taking turns can make room for both ideas.'],['Let only one person decide every time',false,'Try finding a fair way for everyone to be heard.'],['Decide without asking anyone',false,'Listening first can help everyone feel respected.']]},
+    {q:'Someone seems upset and says they want space. What should you do?',a:[['Respect their space and let a trusted adult know if you are worried',true,'That respects their choice and keeps support available if needed.'],['Keep pushing them to talk',false,'Give them room. You can let them know you are there if they want support.'],['Tell everyone their private business',false,'Respect their privacy. Ask a trusted adult for help if safety is a concern.']]}
+  ], ki=0;
+  function renderKind(){
+    var item=kinds[ki], box=document.getElementById('kind-answers');
+    document.getElementById('kind-count').textContent='SCENARIO '+(ki+1)+' OF '+kinds.length;
+    document.getElementById('kind-question').textContent=item.q;document.getElementById('kind-result').textContent='';box.replaceChildren();
+    item.a.forEach(function(answer){var b=document.createElement('button');b.type='button';b.className='choice';b.textContent=answer[0];b.addEventListener('click',function(){markPlayed('kindness');document.getElementById('kind-result').textContent=answer[2];box.querySelectorAll('button').forEach(function(other){other.disabled=true})});box.appendChild(b)});
+  }
+  renderKind();
+  document.getElementById('kind-next').addEventListener('click',function(){ki=(ki+1)%kinds.length;markPlayed('kindness');renderKind()});
+
+  var ingredients=[
+    'A floating library + friendly robots + a rainy day',
+    'A garden on the moon + recycled boxes + music',
+    'A school bus that becomes a treehouse + clean energy',
+    'A talking map + secret paths + helping neighbours',
+    'A tiny museum of everyday inventions + glowing paint',
+    'A beach made of soft crystals + lost toys + teamwork',
+    'A robot chef + surprise vegetables + a picnic in space'
+  ], ii=0;
+  document.getElementById('new-imagination').addEventListener('click',function(){ii=(ii+1)%ingredients.length;document.getElementById('imagination-prompt').textContent=ingredients[ii];document.getElementById('invention-result').textContent='';markPlayed('imagination')});
+  document.getElementById('celebrate-invention').addEventListener('click',function(){
+    var idea=document.getElementById('invention-idea').value.trim();
+    document.getElementById('invention-result').textContent=idea?'Brilliant imagining! Your invention idea is: “'+safeText(idea)+'”. What is one small, safe way you could explore it?':'Write a sentence about your invention first, then celebrate your idea!';
+    if(idea)markPlayed('imagination');
+  });
+  document.getElementById('clear-invention').addEventListener('click',function(){document.getElementById('invention-idea').value='';document.getElementById('invention-result').textContent='Ready for a fresh idea!';markPlayed('imagination')});
+
+  var challenges=[
+    'Notice one thing you worked hard at today.',
+    'Ask a helpful question about something new.',
+    'Take one small step toward learning a skill.',
+    'Tell yourself: “I can learn a little at a time.”',
+    'Notice a time you were kind or helpful.',
+    'Try a task in a different way, or ask for a tip.'
+  ], di=0;
+  function renderChallenge(){document.getElementById('challenge-count').textContent='CHALLENGE '+(di+1)+' OF '+challenges.length;document.getElementById('challenge-prompt').textContent=challenges[di];document.getElementById('challenge-result').textContent=''}
+  renderChallenge();
+  document.getElementById('challenge-tried').addEventListener('click',function(){markPlayed('believe');document.getElementById('challenge-result').textContent='Well done for giving it a try. Effort matters, even when something is still difficult.'});
+  document.getElementById('challenge-next').addEventListener('click',function(){di=(di+1)%challenges.length;markPlayed('believe');renderChallenge()});
 })();
-</script></body></html>
+</script>
+</body>
+</html>
