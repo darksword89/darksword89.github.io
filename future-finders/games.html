@@ -275,7 +275,7 @@ footer{max-width:1136px;margin:0 auto 30px;padding:19px 22px 26px}
     photo.alt='Realistic '+(animalNames[body]||'cat')+' standing in a colourful enchanted landscape';
     photo.loading='lazy';
     photo.decoding='async';
-    photo.addEventListener('error',function(){preview.replaceChildren(document.createTextNode((bodyButton?bodyButton.dataset.emoji:'🐱')+' '+extras.map(function(feature){var symbols={wings:'🪽','dino tail':'🦖',sparkles:'✨','leaf crown':'🌿'};return symbols[feature]||''}).join(' '));caption.textContent='Picture unavailable right now, but your creature is still ready to imagine!';},{once:true});
+    photo.addEventListener('error',function(){preview.replaceChildren(document.createTextNode((bodyButton?bodyButton.dataset.emoji:'🐱')+' '+extras.map(function(feature){var symbols={wings:'🪽','dino tail':'🦖',sparkles:'✨','leaf crown':'🌿'};return symbols[feature]||''}).join(' ')));caption.textContent='Picture unavailable right now, but your creature is still ready to imagine!';},{once:true});
     var layer=document.createElement('div');
     layer.className='feature-layer';
     layer.setAttribute('aria-hidden','true');
