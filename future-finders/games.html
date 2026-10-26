@@ -45,7 +45,7 @@ main{max-width:1180px;margin:auto;padding:0 22px 48px}
 .section-heading h2{font-size:clamp(25px,4vw,36px);letter-spacing:-.7px;line-height:1.1;margin:0 0 5px}
 .section-heading p{margin:0;color:var(--muted)}
 .game-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
-.game-card{min-width:0;background:#fff;border:2px solid var(--line);border-radius:24px;padding:21px;box-shadow:0 11px 30px #142e6c0b;position:relative}
+.game-card{min-width:0;background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);border:2px solid var(--line);border-radius:24px;padding:21px;box-shadow:0 11px 30px #142e6c0b;position:relative;transition:transform .2s ease,box-shadow .2s ease}.game-card:hover{transform:translateY(-3px);box-shadow:0 17px 36px #142e6c16}.game-card:focus-within{box-shadow:0 0 0 4px #1687ef1c,0 14px 30px #142e6c12}
 .game-card:nth-child(2){border-color:#e5d8ff}
 .game-card:nth-child(3){border-color:#d1efdf}
 .game-card:nth-child(4){border-color:#ffe7b3}
@@ -69,9 +69,9 @@ main{max-width:1180px;margin:auto;padding:0 22px 48px}
 textarea.field{min-height:92px;resize:vertical}
 .choice-row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 13px}
 .choice{border:2px solid #d7e4fa;background:#fff;color:var(--ink);font-size:14px;padding:9px 11px;min-height:42px}
-.choice[aria-pressed="true"],.choice.selected{background:#e6f6ff;border-color:#1687ef;box-shadow:inset 0 0 0 1px #1687ef}
+.choice[aria-pressed="true"],.choice.selected{background:#e6f6ff;border-color:#1687ef;box-shadow:inset 0 0 0 1px #1687ef}.choice:not(:disabled):active,.primary:active,.secondary:active{transform:scale(.98)}.choice:disabled{cursor:default;opacity:.7}.primary,.secondary,.choice{transition:transform .15s ease,box-shadow .15s ease,background .15s ease}.status:not(:empty){padding:10px 12px;border-radius:11px;background:#eaf9f0;border:1px solid #c7efd5}.game-card .counter{display:inline-block;background:#f0eaff;border-radius:999px;padding:4px 9px}
 .choice[aria-pressed="true"]{color:#0c438f}
-.big-preview{position:relative;width:100%;aspect-ratio:1/1;min-height:0;display:block;overflow:hidden;border-radius:15px;background:#eaf6ff;border:1px solid #deedff;margin-bottom:9px}.big-preview .animal-photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:14px}.big-preview .feature-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}.big-preview .feature-overlay{position:absolute;display:grid;place-items:center;font-size:clamp(27px,4.5vw,43px);line-height:1;filter:drop-shadow(0 3px 3px #15304b90)}.big-preview .feature-wings{left:1%;top:36%;font-size:clamp(36px,6vw,60px);transform:rotate(-15deg)}.big-preview .feature-tail{right:0;bottom:13%;font-size:clamp(31px,5vw,49px);transform:rotate(22deg)}.big-preview .feature-sparkles{right:8%;top:12%;font-size:clamp(34px,5vw,48px)}.big-preview .feature-crown{left:50%;top:1%;transform:translateX(-50%);font-size:clamp(32px,5vw,46px)}.preview-caption{font-size:12px;color:var(--muted);margin:2px 0 12px}
+.big-preview{position:relative;width:100%;aspect-ratio:1/1;min-height:0;display:block;overflow:hidden;border-radius:15px;background:#eaf6ff;border:1px solid #deedff;margin-bottom:9px}.big-preview .animal-photo{display:block;width:100%;height:100%;object-fit:cover;border-radius:14px;transition:filter .25s ease,transform .35s ease}.big-preview:hover .animal-photo{transform:scale(1.025)}.big-preview .feature-layer{position:absolute;inset:0;pointer-events:none;overflow:hidden}.big-preview .feature-overlay{position:absolute;display:grid;place-items:center;font-size:clamp(27px,4.5vw,43px);line-height:1;filter:drop-shadow(0 3px 3px #15304b90)}.big-preview .feature-wings{left:1%;top:36%;font-size:clamp(36px,6vw,60px);transform:rotate(-15deg)}.big-preview .feature-tail{right:0;bottom:13%;font-size:clamp(31px,5vw,49px);transform:rotate(22deg)}.big-preview .feature-sparkles{right:8%;top:12%;font-size:clamp(34px,5vw,48px)}.big-preview .feature-crown{left:50%;top:1%;transform:translateX(-50%);font-size:clamp(32px,5vw,46px)}.preview-caption{font-size:12px;color:var(--muted);margin:2px 0 12px}
 .game-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .game-actions button{flex:0 1 auto}
 .status{font-weight:750;color:#17663e;margin:12px 0 0;min-height:24px;font-size:14px}
@@ -262,7 +262,9 @@ footer{max-width:1136px;margin:0 auto 30px;padding:19px 22px 26px}
     var preview=document.getElementById('creature-preview');
     var caption=document.getElementById('creature-caption');
     if(body==='cat' && ['wings','dino tail','sparkles','leaf crown'].every(function(feature){return extras.indexOf(feature)!==-1})){
-      preview.innerHTML='<img class="animal-photo" src="realistic-creature-preview.webp" alt="A realistic fantasy cat with feathered wings, a dinosaur tail, sparkling fur, and a leafy flower crown.">';
+      preview.innerHTML='<img class="animal-photo" src="realistic-creature-preview.webp" alt="A realistic fantasy cat with feathered wings, a dinosaur tail, sparkling fur, and a leafy flower crown." loading="lazy" decoding="async">';
+      var compositeImage=preview.querySelector('img');
+      compositeImage.addEventListener('error',function(){preview.innerHTML='<span aria-hidden="true">🐱 🪽 🦖 ✨ 🌿</span>';preview.setAttribute('role','img');preview.setAttribute('aria-label','Cat with wings, dinosaur tail, sparkles and leaf crown')},{once:true});
       preview.setAttribute('aria-label','A realistic fantasy cat with all four features');
       caption.textContent='Your realistic winged cat is ready to explore!';
       return;
@@ -271,6 +273,9 @@ footer{max-width:1136px;margin:0 auto 30px;padding:19px 22px 26px}
     photo.className='animal-photo';
     photo.src=assets[body]||assets.cat;
     photo.alt='Realistic '+(animalNames[body]||'cat')+' standing in a colourful enchanted landscape';
+    photo.loading='lazy';
+    photo.decoding='async';
+    photo.addEventListener('error',function(){preview.replaceChildren(document.createTextNode((bodyButton?bodyButton.dataset.emoji:'🐱')+' '+extras.map(function(feature){var symbols={wings:'🪽','dino tail':'🦖',sparkles:'✨','leaf crown':'🌿'};return symbols[feature]||''}).join(' '));caption.textContent='Picture unavailable right now, but your creature is still ready to imagine!';},{once:true});
     var layer=document.createElement('div');
     layer.className='feature-layer';
     layer.setAttribute('aria-hidden','true');
